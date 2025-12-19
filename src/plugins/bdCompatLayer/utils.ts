@@ -27,6 +27,12 @@ import { addCustomPlugin, convertPlugin, removeAllCustomPlugins } from "./plugin
 
 export const compat_logger = new Logger("BD Compat Layer", "#a6d189");
 
+export function escapeHTML(html: string): string {
+    const div = document.createElement("div");
+    div.textContent = html;
+    return div.innerHTML;
+}
+
 export function getDeferred<T = any>() {
     let resolve: (value: T | PromiseLike<T>) => void;
     let reject: (reason?: any) => void;

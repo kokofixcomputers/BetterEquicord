@@ -30,7 +30,7 @@ import { PLUGIN_NAME } from "./constants";
 import { fetchWithCorsProxyFallback } from "./fakeStuff";
 import { AssembledBetterDiscordPlugin } from "./pluginConstructor";
 import { getModule as BdApi_getModule, monkeyPatch as BdApi_monkeyPatch, Patcher, ReactUtils_filler } from "./stuffFromBD";
-import { addLogger, compat_logger, createTextForm, docCreateElement, ObjectMerger } from "./utils";
+import { addLogger, compat_logger, createTextForm, docCreateElement, ObjectMerger, escapeHTML } from "./utils";
 
 class PatcherWrapper {
     #label;
@@ -364,12 +364,12 @@ export const WebpackHolder = {
             },
         });
     },
-    getBulk(...mapping: { filter: (m: any) => unknown, searchExports?: boolean }[]) {
+    getBulk(...mapping: { filter: (m: any) => unknown, searchExports?: boolean; }[]) {
         const len = mapping.length;
         const result = new Array(len);
         for (let i = 0; i < len; i++) {
             const { filter, ...opts } = mapping[i];
-            result[i] = WebpackHolder.getModule(filter, opts)
+            result[i] = WebpackHolder.getModule(filter, opts);
         }
         return result;
     },
@@ -741,12 +741,12 @@ export const UIHolder = {
                             stickToMarkers?: boolean,
                             min?: number,
                             max?: number,
-                            markers?: (number | { label: string, value: number })[],
+                            markers?: (number | { label: string, value: number; })[],
                         };
 
                         if (currentAsSliderCompatible.markers) {
                             if (typeof currentAsSliderCompatible.markers[0] === "object") {
-                                fakeOptionAsSlider.markers = currentAsSliderCompatible.markers.map(x => (x as { label: string, value: number }).value);
+                                fakeOptionAsSlider.markers = currentAsSliderCompatible.markers.map(x => (x as { label: string, value: number; }).value);
                             } else {
                                 fakeOptionAsSlider.markers = currentAsSliderCompatible.markers as number[];
                             }
@@ -1176,6 +1176,7 @@ class BdApiReImplementationInstance {
             }
             return 0;
         },
+        escapeHTML,
         extend: ObjectMerger.perform.bind(ObjectMerger),
         debounce: lodash.debounce,
     };

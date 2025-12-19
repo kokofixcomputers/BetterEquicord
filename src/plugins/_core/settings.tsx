@@ -310,7 +310,7 @@ export default definePlugin({
         const equicordSection: SettingsLayoutNode = {
             key: "equicord_section",
             type: LayoutTypes.SECTION,
-            useTitle: () => "Equicord Settings",
+            useTitle: () => "Equicord",
             buildLayout: () => equicordEntries
         };
 
@@ -347,12 +347,12 @@ export default definePlugin({
         return [
             {
                 section: SectionTypes.HEADER,
-                label: "Equicord",
+                label: "BetterEquicord",
                 className: "vc-settings-header",
             },
             {
                 section: "EquicordSettings",
-                label: "Equicord",
+                label: "BetterEquicord",
                 element: VencordTab,
                 className: "vc-settings",
             },
@@ -513,7 +513,7 @@ export default definePlugin({
     getInfoRows() {
         const { electronVersion, chromiumVersion, getVersionInfo } = this;
 
-        const rows = [`Equicord ${gitHashShort}${getVersionInfo()}`];
+        const rows = [`BetterEquicord ${gitHashShort}${getVersionInfo()}`];
 
         if (electronVersion) rows.push(`Electron ${electronVersion}`);
         if (chromiumVersion) rows.push(`Chromium ${chromiumVersion}`);

@@ -42,7 +42,7 @@ import { aquireNative, compat_logger, FSUtils, getDeferred, patchMkdirSync, patc
 
 const thePlugin = {
     name: PLUGIN_NAME,
-    description: "Converts BD plugins to run in Equicord",
+    description: "Converts BD plugins to run in BetterEquicord",
     isModified: true,
     authors: [
         Devs.Davvy,
