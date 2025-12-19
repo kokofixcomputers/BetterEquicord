@@ -33,7 +33,7 @@ type SettingsPlugin = Plugin & {
     customSections: ((ID: Record<string, unknown>) => any)[];
 };
 
-const TabName = "Virtual Filesystem";
+const TabName = "BDPlugin Manager";
 const cl = classNameFactory("vc-settings-");
 
 function makeTab() {
