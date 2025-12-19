@@ -1,4 +1,4 @@
-# [<img src="./browser/icon.png" width="40" align="left" alt="Equicord">](https://github.com/Equicord/Equicord) Equicord
+# [<img src="./browser/icon.png" width="40" align="left" alt="Equicord">](https://github.com/Equicord/Equicord) BetterEquicord
 
 [![Equibop](https://img.shields.io/badge/Equibop-grey?style=flat)](https://github.com/Equicord/Equibop)
 [![Tests](https://github.com/Equicord/Equicord/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Equicord/Equicord/actions/workflows/test.yml)
@@ -32,13 +32,13 @@ Install `pnpm`:
 npm i -g pnpm
 ```
 
-> :exclamation: **IMPORTANT** Make sure you aren't using an admin/root terminal from here onwards. It **will** mess up your Discord/Equicord instance and you **will** most likely have to reinstall.
+> :exclamation: **IMPORTANT** Make sure you aren't using an admin/root terminal from here onwards. It **will** mess up your Discord/BetterEquicord instance and you **will** most likely have to reinstall.
 
-Clone Equicord:
+Clone BetterEquicord:
 
 ```shell
-git clone https://github.com/Equicord/Equicord
-cd Equicord
+git clone https://github.com/kokofixcomputers/BetterEquicord
+cd BetterEquicord
 ```
 
 Install dependencies:
@@ -47,25 +47,25 @@ Install dependencies:
 pnpm install --frozen-lockfile
 ```
 
-Build Equicord:
+Build BetterEquicord:
 
 ```shell
 pnpm build
 ```
 
-Inject Equicord into your desktop client:
+Inject BetterEquicord into your desktop client:
 
 ```shell
 pnpm inject
 ```
 
-Build Equicord for web:
+Build BetterEquicord for web:
 
 ```shell
 pnpm buildWeb
 ```
 
-After building Equicord's web extension, locate the appropriate ZIP file in the `dist` directory and follow your browser’s guide for installing custom extensions, if supported.
+After building BetterEquicord's web extension, locate the appropriate ZIP file in the `dist` directory and follow your browser’s guide for installing custom extensions, if supported.
 
 Note: Firefox extension zip requires Firefox for developers
 
@@ -77,7 +77,7 @@ Thank you to [Vendicated](https://github.com/Vendicated) for creating [Vencord](
 
 Discord is trademark of Discord Inc., and solely mentioned for the sake of descriptivity.
 Mentioning it does not imply any affiliation with or endorsement by Discord Inc.
-Vencord is not connected to Equicord and as such, all donation links go to Vendicated's donation link.
+Vencord is not connected to BetterEquicord and as such, all donation links go to Vendicated's donation link.
 BetterEquicord is not connected to BetterDiscord nor Equicord. DO NOT ask for support in their servers.
 
 <details>

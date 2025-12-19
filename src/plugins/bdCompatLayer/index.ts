@@ -42,7 +42,8 @@ import { aquireNative, compat_logger, FSUtils, getDeferred, patchMkdirSync, patc
 
 const thePlugin = {
     name: PLUGIN_NAME,
-    description: "Converts BD plugins to run in Vencord",
+    description: "Converts BD plugins to run in Equicord",
+    isModified: true,
     authors: [
         Devs.Davvy,
         Devs.WhoIsThis,
