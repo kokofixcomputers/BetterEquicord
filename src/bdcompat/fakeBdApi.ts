@@ -17,7 +17,6 @@
 */
 
 /* eslint-disable eqeqeq */
-import { addContextMenuPatch, removeContextMenuPatch } from "@api/ContextMenu";
 import { Settings } from "@api/Settings";
 import { Menu } from "@webpack/common";
 const VenComponents = OptionComponentMap;
@@ -767,6 +766,13 @@ export const UIHolder = {
                         }
                         break;
                     }
+                    case "radio": {
+                        fakeOption.type = OptionType.SELECT;
+                        fakeOption.description = current.note!;
+                        const fakeOptionAsSelect = fakeOption as PluginOptionSelect;
+                        fakeOptionAsSelect.options = current.options!;
+                        break;
+                    }
                     case "color": {
                         fakeOption.type = OptionType.COMPONENT;
                         fakeOption.description = current.note!;
@@ -796,8 +802,9 @@ export const UIHolder = {
                 const fakeElement = VenComponents[fakeOption.type] as typeof VenComponents[keyof typeof VenComponents];
                 const craftingResult = current.type === "category" ?
                     React.createElement("div", { style: { marginBottom: 8 } },
-                        [React.createElement(Forms.FormDivider), React.createElement(Text, { variant: "heading-lg/semibold" }, current.name)]) :
-                    React.createElement("div", { className: "bd-compat-setting", style: { marginBottom: 8 } }, [
+                        React.createElement(Forms.FormDivider),
+                        React.createElement(Text, { variant: "heading-lg/semibold" }, current.name)) :
+                    React.createElement("div", { className: "bd-compat-setting", style: { marginBottom: 8 } },
                         React.createElement(Text, { variant: "heading-md/semibold" }, current.name),
                         React.createElement(fakeElement, {
                             id: current.id,
@@ -809,7 +816,7 @@ export const UIHolder = {
                             // onError() { },
                             pluginSettings: targetSettingsToSet[catName],
                         })
-                    ]);
+                    );
                 settings.push(craftingResult);
                 if (current.type === "category") {
                     craftOptions(current.settings!, current.id);
@@ -923,29 +930,65 @@ class BdApiReImplementationInstance {
     #data: DataWrapper | typeof DataHolder;
     #dom: DOMWrapper | typeof DOMHolder;
     ContextMenu = {
-        patch: addContextMenuPatch,
-        unpatch: removeContextMenuPatch,
-        buildMenu: (items: any[]) => {
-            const { React } = getGlobalApi();
-            return React.createElement(Menu.Menu, {
-                navId: "bd-compat-menu",
-                onClose: () => {},
-                "aria-label": "Context Menu"
-            }, items.map((item, i) => {
-                if (item.type === "separator") {
-                    return React.createElement(Menu.MenuSeparator, { key: i });
+        patch(navId, callback) {
+            this._patches = this._patches || {};
+            this._patches[navId] = this._patches[navId] || [];
+            this._patches[navId].push(callback);
+            return () => {
+                const patches = this._patches[navId];
+                if (patches) {
+                    const index = patches.indexOf(callback);
+                    if (index > -1) patches.splice(index, 1);
                 }
-                return React.createElement(Menu.MenuItem, {
-                    key: i,
-                    id: item.id || `item-${i}`,
-                    label: item.label,
-                    action: item.action,
-                    disabled: item.disabled
-                });
-            }));
+            };
         },
-        open: (event: MouseEvent, menu: any, options: any) => {
-            console.log("ContextMenu.open called", { event, menu, options });
+        unpatch(navId, callback) {
+            if (this._patches && this._patches[navId]) {
+                const patches = this._patches[navId];
+                const index = patches.indexOf(callback);
+                if (index > -1) patches.splice(index, 1);
+            }
+        },
+        buildItem(props = {}) { return props; },
+        buildMenuChildren(setup = []) { return setup.filter(Boolean); },
+        buildMenu(setup = []) {
+            return (props) => {
+                const { Menu } = Vencord.Webpack.Common;
+                const React = Vencord.Webpack.Common.React;
+                return React.createElement(Menu.Menu, {
+                    navId: "bd-compat-menu",
+                    onClose: () => {},
+                    "aria-label": "Context Menu",
+                    ...props
+                }, this.buildMenuChildren(setup));
+            };
+        },
+        open(event, menuComponent, config = {}) {
+            try {
+                const { openContextMenu } = Vencord.Webpack.Common;
+                if (openContextMenu && typeof menuComponent === "function") {
+                    openContextMenu(event, menuComponent, config);
+                } else {
+                    // Fallback: try to find it in webpack modules
+                    const modules = Vencord.Webpack.cache;
+                    for (const mod of Object.values(modules)) {
+                        if (mod?.exports?.openContextMenu) {
+                            mod.exports.openContextMenu(event, menuComponent, config);
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log("ContextMenu.open fallback - could not open menu", e);
+            }
+        },
+        close() {
+            try {
+                const { closeContextMenu } = Vencord.Webpack.Common;
+                if (closeContextMenu) closeContextMenu();
+            } catch (e) {
+                console.log("ContextMenu.close fallback", e);
+            }
         }
     };
     labelsOfInstancedAPI: { [key: string]: BdApiReImplementationInstance; };
@@ -972,7 +1015,68 @@ class BdApiReImplementationInstance {
             getGlobalApi().labelsOfInstancedAPI[label] = this;
             Object.defineProperty(this, "ContextMenu", {
                 get() {
-                    return getGlobalApi().ContextMenu;
+                    return {
+                        patch(navId, callback) {
+                            this._patches = this._patches || {};
+                            this._patches[navId] = this._patches[navId] || [];
+                            this._patches[navId].push(callback);
+                            return () => {
+                                const patches = this._patches[navId];
+                                if (patches) {
+                                    const index = patches.indexOf(callback);
+                                    if (index > -1) patches.splice(index, 1);
+                                }
+                            };
+                        },
+                        unpatch(navId, callback) {
+                            if (this._patches && this._patches[navId]) {
+                                const patches = this._patches[navId];
+                                const index = patches.indexOf(callback);
+                                if (index > -1) patches.splice(index, 1);
+                            }
+                        },
+                        buildItem(props = {}) { return props; },
+                        buildMenuChildren(setup = []) { return setup.filter(Boolean); },
+                        buildMenu(setup = []) {
+                            return (props) => {
+                                const { Menu } = Vencord.Webpack.Common;
+                                const React = Vencord.Webpack.Common.React;
+                                return React.createElement(Menu.Menu, {
+                                    navId: "bd-compat-menu",
+                                    onClose: () => {},
+                                    "aria-label": "Context Menu",
+                                    ...props
+                                }, this.buildMenuChildren(setup));
+                            };
+                        },
+                        open(event, menuComponent, config = {}) {
+                            try {
+                                const { openContextMenu } = Vencord.Webpack.Common;
+                                if (openContextMenu && typeof menuComponent === "function") {
+                                    openContextMenu(event, menuComponent, config);
+                                } else {
+                                    // Fallback: try to find it in webpack modules
+                                    const modules = Vencord.Webpack.cache;
+                                    for (const mod of Object.values(modules)) {
+                                        if (mod?.exports?.openContextMenu) {
+                                            mod.exports.openContextMenu(event, menuComponent, config);
+                                            break;
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.log("ContextMenu.open fallback - could not open menu", e);
+                            }
+                        },
+                        close() {
+                            try {
+                                const { closeContextMenu } = Vencord.Webpack.Common;
+                                if (closeContextMenu) closeContextMenu();
+                            } catch (e) {
+                                console.log("ContextMenu.close fallback", e);
+                            }
+                        }
+                    };
                 }
             });
         }

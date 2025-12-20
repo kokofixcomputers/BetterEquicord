@@ -30,8 +30,10 @@ export default definePlugin({
         Devs.WhoIsThis,
         Devs.kokofixcomputers,
     ],
+    // Disable the plugin by default since it's now integrated
     enabledByDefault: false,
     start() {
+        // Show a notice that this plugin is deprecated
         setTimeout(() => {
             if (typeof Vencord !== "undefined" && Vencord.Notifications) {
                 Vencord.Notifications.showNotification({
@@ -42,5 +44,7 @@ export default definePlugin({
             }
         }, 2000);
     },
-    stop() {},
+    stop() {
+        // Nothing to clean up
+    },
 });

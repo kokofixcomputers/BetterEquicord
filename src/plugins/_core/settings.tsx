@@ -5,12 +5,14 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginsIcon, UpdaterIcon, VesktopSettingsIcon } from "@components/Icons";
+import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PlusIcon, PluginsIcon, UpdaterIcon, VesktopSettingsIcon } from "@components/Icons";
 import {
     BackupAndRestoreTab,
+    BetterDiscordTab,
     ChangelogTab,
     CloudTab,
     PatchHelperTab,
+    PluginInjectorTab,
     PluginsTab,
     ThemesTab,
     UpdaterTab,
@@ -219,6 +221,8 @@ export default definePlugin({
             ["EquicordSettings", "equicord_main_panel"],
             ["EquicordPlugins", "equicord_plugins_panel"],
             ["EquicordThemes", "equicord_themes_panel"],
+            ["EquicordBetterDiscord", "equicord_betterdiscord_panel"],
+            ["EquicordPluginInjector", "equicord_plugininjector_panel"],
             ["EquicordUpdater", "equicord_updater_panel"],
             ["EquicordChangelog", "equicord_changelog_panel"],
             ["EquicordCloud", "equicord_cloud_panel"],
@@ -259,6 +263,18 @@ export default definePlugin({
                 title: "Themes",
                 Component: ThemesTab,
                 Icon: PaintbrushIcon
+            }),
+            buildEntry({
+                key: "equicord_betterdiscord",
+                title: "BetterDiscord",
+                Component: BetterDiscordTab,
+                Icon: PluginsIcon
+            }),
+            buildEntry({
+                key: "equicord_plugininjector",
+                title: "Plugin Injector",
+                Component: PluginInjectorTab,
+                Icon: PlusIcon
             }),
             !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
                 key: "equicord_updater",
@@ -369,6 +385,20 @@ export default definePlugin({
                 searchableTitles: ["Themes"],
                 element: ThemesTab,
                 className: "vc-themes",
+            },
+            {
+                section: "EquicordBetterDiscord",
+                label: "BetterDiscord",
+                searchableTitles: ["BetterDiscord"],
+                element: BetterDiscordTab,
+                className: "vc-betterdiscord",
+            },
+            {
+                section: "EquicordPluginInjector",
+                label: "Plugin Injector",
+                searchableTitles: ["Plugin Injector"],
+                element: PluginInjectorTab,
+                className: "vc-plugininjector",
             },
             !IS_UPDATER_DISABLED && {
                 section: "EquicordUpdater",

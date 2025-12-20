@@ -75,6 +75,7 @@ function makeTab() {
                     label: "Import a file here",
                     action: async () => {
                         await FSUtils.importFile(ref.current.split("fs-")[1], true);
+                        // console.log(ref.current.split("fs-")[1]);
                         findInTree(baseNode, x => x.id === ref.current)?.fetchChildren();
                     },
                 },
@@ -117,14 +118,22 @@ function makeTab() {
                             label: "Plugin actions",
                             items: [
                                 {
+                                    // label: "(Re)Load plugin",
                                     label: "Reload plugin",
                                     action: () => {
                                         const selected = ref.current.split("fs-")[1];
                                         const parsed: { dir: string, base: string; } = window.require("path").parse(selected);
                                         parsed.dir = parsed.dir.startsWith("//") ? parsed.dir.slice(1) : parsed.dir;
+                                        // eslint-disable-next-line eqeqeq
                                         const foundOrNot = getGlobalApi().Plugins.getAll().find(x => x.sourcePath == parsed.dir && x.filename == parsed.base);
+                                        // if (!foundOrNot) {
+                                        //     const converted = convertPlugin(window.require("fs").readFileSync(selected, "utf8"), parsed.base, true, parsed.dir);
+                                        //     converted.then(x => {
+                                        //         addCustomPlugin(x);
+                                        //     });
+                                        // }
                                         if (foundOrNot) {
-                                            (async () => {
+                                            (async () => { // TODO: move to a separate function
                                                 Vencord.Settings.plugins[foundOrNot.name].enabled = false;
                                                 if (foundOrNot.started === true) {
                                                     const currentStatus = Vencord.Settings.plugins[PLUGIN_NAME].pluginsStatus[foundOrNot.name];
