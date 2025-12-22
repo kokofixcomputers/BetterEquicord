@@ -460,7 +460,7 @@ const _ReactDOM_With_createRoot = {} as typeof Vencord.Webpack.Common.ReactDOM &
 
 export const UIHolder = {
     alert(title: string, content: any) {
-        return this.showConfirmationModal(title, content, { cancelText: null });
+        return this.showConfirmationModal(title, content, { cancelText: null, confirmText: "OK" });
     },
     helper() {
         compat_logger.error(new Error("Not implemented."));
@@ -520,16 +520,16 @@ export const UIHolder = {
             moreReact.push(reactElement);
         });
 
-        openModal(props => React.createElement(ConfirmationModal, Object.assign({
+        openModal(props => React.createElement(ConfirmationModal, {
             header: title,
-            confirmButtonColor: Colors.BRAND,
+            confirmButtonColor: settings.danger ? "var(--status-danger)" : Colors.BRAND,
             confirmText: confirmText,
             cancelText: cancelText,
             onConfirm: onConfirm,
             onCancel: onCancel,
             children: moreReact,
             ...props
-        })));
+        }));
     },
     showNotice_(title, content, options: any = {}) {
         // const { React, ReactDOM } = BdApiReImplementation;
@@ -1320,7 +1320,7 @@ class BdApiReImplementationInstance {
         };
     }
     alert(title, content) {
-        UIHolder.showConfirmationModal(title, content, { cancelText: null });
+        UIHolder.showConfirmationModal(title, content, { cancelText: null, confirmText: "OK" });
     }
     showToast(content, toastType = 1) {
         UIHolder.showToast(content, toastType);
