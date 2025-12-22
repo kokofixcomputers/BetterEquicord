@@ -136,10 +136,7 @@ function makeTab() {
                                             (async () => { // TODO: move to a separate function
                                                 Vencord.Settings.plugins[foundOrNot.name].enabled = false;
                                                 if (foundOrNot.started === true) {
-                                                    const currentStatus = Vencord.Settings.plugins[PLUGIN_NAME].pluginsStatus[foundOrNot.name];
                                                     Vencord.Plugins.stopPlugin(foundOrNot as Plugin);
-                                                    if (currentStatus === true)
-                                                        Vencord.Settings.plugins[PLUGIN_NAME].pluginsStatus[foundOrNot.name] = currentStatus;
                                                 }
                                                 delete Vencord.Plugins.plugins[foundOrNot.name];
                                                 (window.GeneratedPlugins as any[]).splice((window.GeneratedPlugins as any[]).indexOf(foundOrNot), 1);

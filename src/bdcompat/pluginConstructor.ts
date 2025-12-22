@@ -398,15 +398,15 @@ export async function convertPlugin(BetterDiscordPlugin: string, filename: strin
     //     final.stop = final.instance.onStop.bind(final.instance);
     // }
     const startFunction = function (this: AssembledBetterDiscordPlugin) {
-        const compatLayerSettings = Vencord.Settings.plugins[PLUGIN_NAME];
-        // compatLayerSettings.pluginsStatus = compatLayerSettings.pluginsStatus ?? {};
-        compatLayerSettings.pluginsStatus[this.name] = true;
+        // Use standard Vencord plugin enabled status instead of custom pluginsStatus
+        Vencord.Settings.plugins[this.name] = Vencord.Settings.plugins[this.name] || { enabled: false };
+        Vencord.Settings.plugins[this.name].enabled = true;
         this.instance.start();
     };
     const stopFunction = function (this: AssembledBetterDiscordPlugin) {
-        const compatLayerSettings = Vencord.Settings.plugins[PLUGIN_NAME];
-        // compatLayerSettings.pluginsStatus = compatLayerSettings.pluginsStatus ?? {};
-        compatLayerSettings.pluginsStatus[this.name] = false;
+        // Use standard Vencord plugin enabled status instead of custom pluginsStatus
+        Vencord.Settings.plugins[this.name] = Vencord.Settings.plugins[this.name] || { enabled: false };
+        Vencord.Settings.plugins[this.name].enabled = false;
         this.instance.stop();
     };
     final.start = startFunction.bind(final);
@@ -564,12 +564,10 @@ export async function addCustomPlugin(generatedPlugin: AssembledBetterDiscordPlu
     Vencord.Settings.plugins[generated.name].enabled = false;
 
     const compatLayerSettings = Vencord.PlainSettings.plugins[PLUGIN_NAME];
-    // compatLayerSettings.pluginsStatus = compatLayerSettings.pluginsStatus ?? {};
-    if (generatedPlugin.name in compatLayerSettings.pluginsStatus) {
-        const thePluginStatus = compatLayerSettings.pluginsStatus[generatedPlugin.name];
-        Vencord.Settings.plugins[generated.name].enabled = thePluginStatus;
-        if (thePluginStatus === true)
-            Vencord.Plugins.startPlugin(Vencord.Plugins.plugins[generated.name]);
+    // Use standard Vencord plugin settings instead of custom pluginsStatus
+    if (generatedPlugin.name in Vencord.Settings.plugins && Vencord.Settings.plugins[generatedPlugin.name].enabled) {
+        Vencord.Settings.plugins[generated.name].enabled = true;
+        Vencord.Plugins.startPlugin(Vencord.Plugins.plugins[generated.name]);
     }
     // Vencord.Settings.plugins[generated.name].enabled = true;
     // Vencord.Plugins.startPlugin(generated as Plugin);
@@ -583,10 +581,7 @@ export async function removeAllCustomPlugins() {
         const generated = generatedPlugin;
         Vencord.Settings.plugins[generated.name].enabled = false;
         if (generated.started === true) {
-            const currentStatus = Vencord.Settings.plugins[PLUGIN_NAME].pluginsStatus[generated.name];
             Vencord.Plugins.stopPlugin(generated as Plugin);
-            if (currentStatus === true)
-                Vencord.Settings.plugins[PLUGIN_NAME].pluginsStatus[generated.name] = currentStatus;
         }
         delete PluginMeta[generated.name];
         delete Vencord.Plugins.plugins[generated.name];
