@@ -1,11 +1,12 @@
 // src/userplugins/QuestHelper/index.ts
 
 import definePlugin from "@utils/types";
+import { Devs } from "@utils/constants";
 
 export default definePlugin({
     name: "QuestHelper",
     description: "Quest Helper overlay using Discord's internal quest APIs.",
-    authors: [{ id: 0, name: "you" }],
+    authors: [Devs.kokofixcomputers],
 
     start() {
         // ========== STYLE ==========
