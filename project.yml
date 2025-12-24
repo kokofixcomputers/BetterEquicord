@@ -1,0 +1,24 @@
+author: kokodev, equicord
+name: BetterEquicord
+scripts:
+  build:
+    commands:
+      - cd ~/BetterEquicord
+      - npx pnpm run buildStandalone
+      - npx pnpm run buildWebStandalone
+      - mv "dist/browser/browser.js" "dist/browser/equicord.js"
+      - mv "dist/browser/browser.css" "dist/browser/equicord.css"
+  inject:
+    commands:
+      - mv "dist/browser/equicord.js" "/Users/ct/Library/Application Support/KokoCord/equicord.js"
+      - mv "dist/browser/equicord.css" "/Users/ct/Library/Application Support/KokoCord/equicord.css"
+  buildandinject:
+    commands:
+      - cd ~/BetterEquicord
+      - npx pnpm run buildStandalone
+      - npx pnpm run buildWebStandalone
+      - mv "dist/browser/browser.js" "dist/browser/equicord.js"
+      - mv "dist/browser/equicord.js" "/Users/ct/Library/Application Support/KokoCord/equicord.js"
+      - mv "dist/browser/browser.css" "dist/browser/equicord.css"
+      - mv "dist/browser/equicord.css" "/Users/ct/Library/Application Support/KokoCord/equicord.css"
+version: 1.13.9.5

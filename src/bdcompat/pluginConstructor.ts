@@ -560,8 +560,12 @@ export async function addCustomPlugin(generatedPlugin: AssembledBetterDiscordPlu
     const { GeneratedPlugins } = window;
     const generated = generatedPlugin;
     PluginMeta[generated.name] = { userPlugin: true, folderName: `${generated.name}/${generated.filename}` };
+    
+    // Preserve existing enabled state if plugin already exists
+    const wasEnabled = Vencord.Settings.plugins[generated.name]?.enabled ?? false;
+    
     Vencord.Plugins.plugins[generated.name] = generated as Plugin;
-    Vencord.Settings.plugins[generated.name].enabled = false;
+    Vencord.Settings.plugins[generated.name].enabled = wasEnabled;
 
     const compatLayerSettings = Vencord.PlainSettings.plugins[PLUGIN_NAME];
     // Use standard Vencord plugin settings instead of custom pluginsStatus

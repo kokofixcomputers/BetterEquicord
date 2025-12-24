@@ -10,7 +10,7 @@ import { Button } from "@components/Button";
 import { Divider } from "@components/Divider";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
-import { PlusIcon, RestartIcon, TrashIcon } from "@components/Icons";
+import { PlusIcon, RestartIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
@@ -22,6 +22,7 @@ interface InjectedPlugin {
     url: string;
     enabled: boolean;
     loaded: boolean;
+    scriptId?: string;
 }
 
 function PluginInjectorSettings() {
@@ -36,22 +37,23 @@ function PluginInjectorSettings() {
 
     const addPlugin = async () => {
         if (!newPluginUrl.trim()) return;
-        
+
         setLoading(true);
         try {
             const response = await fetch(newPluginUrl);
             const code = await response.text();
-            
-            const nameMatch = code.match(/name:\s*["']([^"']+)["']/);
+
+            const nameMatch = code.match(/name:\s*["']([^"']+)["']/i) ||
+                code.match(/@name\s+["']([^"']+)["']/i);
             const name = nameMatch ? nameMatch[1] : `Plugin_${Date.now()}`;
-            
+
             const newPlugin: InjectedPlugin = {
                 name,
                 url: newPluginUrl,
                 enabled: false,
                 loaded: false
             };
-            
+
             setPlugins(prev => [...prev, newPlugin]);
             setNewPluginUrl("");
         } catch (error) {
@@ -63,24 +65,23 @@ function PluginInjectorSettings() {
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-        
+
         setLoading(true);
         const reader = new FileReader();
         reader.onload = (e) => {
             const code = e.target?.result as string;
-            const nameMatch = code.match(/name:\s*["']([^"']+)["']/);
+            const nameMatch = code.match(/name:\s*["']([^"']+)["']/i) ||
+                code.match(/@name\s+["']([^"']+)["']/i);
             const name = nameMatch ? nameMatch[1] : file.name.replace('.js', '');
-            
+
             const newPlugin: InjectedPlugin = {
                 name,
                 url: `file://${file.name}`,
                 enabled: false,
-                loaded: false
+                loaded: false,
+                code // Store code for local files
             };
-            
-            // Store the code directly in the plugin object
-            (newPlugin as any).code = code;
-            
+
             setPlugins(prev => [...prev, newPlugin]);
             setLoading(false);
         };
@@ -92,7 +93,7 @@ function PluginInjectorSettings() {
         const plugin = plugins[index];
         const confirmed = confirm(`Are you sure you want to delete "${plugin.name}"?`);
         if (!confirmed) return;
-        
+
         if (plugin.loaded) {
             unloadPlugin(plugin);
         }
@@ -106,8 +107,8 @@ function PluginInjectorSettings() {
         } else {
             await loadPlugin(plugin);
         }
-        
-        setPlugins(prev => prev.map((p, i) => 
+
+        setPlugins(prev => prev.map((p, i) =>
             i === index ? { ...p, enabled: !p.enabled } : p
         ));
     };
@@ -115,89 +116,88 @@ function PluginInjectorSettings() {
     const loadPlugin = async (plugin: InjectedPlugin) => {
         try {
             let code;
-            if (plugin.url.startsWith('file://')) {
-                // Handle local files - code is stored directly
-                code = (plugin as any).code;
+            if ('code' in plugin) {
+                code = plugin.code as string;
             } else {
-                // Handle URL-based plugins
                 const response = await fetch(plugin.url);
                 code = await response.text();
             }
-            
-            // Check if this is an Equicord plugin (has definePlugin)
-            const isEquicordPlugin = code.includes('definePlugin') || code.includes('export default');
-            
-            let transformedCode;
-            if (isEquicordPlugin) {
-                // For Equicord plugins, handle TypeScript syntax more carefully
-                transformedCode = code
-                    .replace(/import\s+.*?from\s+["']([^"']+)["'];?/g, '') // Remove imports
-                    .replace(/export\s+default\s+/, 'const plugin = ') // Convert export to variable
-                    .replace(/:\s*[\w<>\[\]|&{},.\s]+(?=[,)=;{}])/g, '') // Remove type annotations
-                    .replace(/\s+as\s+\w+/g, '') // Remove 'as' type assertions
-                    .replace(/<[\w<>\[\]|&{},.\s]+>/g, '') // Remove generic types
-                    .replace(/\?:/g, ':') // Remove optional property markers
-                    .replace(/interface\s+\w+\s*{[^}]*}/g, '') // Remove interface declarations
-                    .replace(/type\s+\w+\s*=[^;]+;/g, ''); // Remove type aliases
-                
-                // Add plugin registration
-                transformedCode += `
-                if (typeof plugin === 'object' && plugin.name) {
-                    if (typeof Vencord !== 'undefined' && Vencord.Plugins) {
-                        // Register as Equicord plugin
-                        Vencord.Plugins.plugins[plugin.name] = plugin;
-                        if (plugin.start && typeof plugin.start === 'function') {
-                            plugin.start();
-                        }
-                    }
-                }`;
-            } else {
-                // For BetterDiscord plugins, use the old transformation
-                transformedCode = code
-                    .replace(/import\s+.*?from\s+["']([^"']+)["'];?/g, '')
-                    .replace(/export\s+default\s+/g, 'window.BdPluginExport = ')
-                    .replace(/export\s+/g, 'window.BdPluginExports = window.BdPluginExports || {}; window.BdPluginExports.')
-                    .replace(/\s+as\s+\w+/g, '') // Remove TypeScript 'as' type assertions
-                    .replace(/:\s*\w+\[\]/g, '') // Remove array type annotations
-                    .replace(/:\s*[\w<>\[\]|&{},.\s]+(?=[,)=;{}])/g, '') // Remove type annotations more carefully
-                    .replace(/<[\w<>\[\]|&{},.\s]+>/g, ''); // Remove generic type parameters
-            }
-            
+
+            // Clean code for Vencord plugin execution
+            const cleanedCode = code
+                // Remove import statements (Vencord provides all APIs globally)
+                .replace(/import\s+.*?from\s+["'][^"']+["'][;]?\s*/g, '')
+                // Handle definePlugin pattern
+                .replace(/definePlugin\s*\(\s*\{([^}]+)\}\s*\)\s*=>?\s*\{([^}]+)\}/gs, (match, config, body) => {
+                    return `const plugin = {name: "${plugin.name}", ${config}, ${body}}; Vencord.Plugins.plugins["${plugin.name}"] = plugin;`;
+                })
+                // Handle export default
+                .replace(/export\s+default\s+definePlugin\s*\(\s*\{([^}]+)\}\s*\)\s*=>?\s*\{([^}]+)\}/gs, (match, config, body) => {
+                    return `const plugin = {name: "${plugin.name}", ${config}, ${body}}; Vencord.Plugins.plugins["${plugin.name}"] = plugin;`;
+                })
+                // Simple export default fallback
+                .replace(/export\s+default\s*(\{[^}]+?\})/gs, (match, obj) => {
+                    return `const plugin = {name: "${plugin.name}", ${obj}}; Vencord.Plugins.plugins["${plugin.name}"] = plugin;`;
+                })
+                // Remove TypeScript types
+                .replace(/:\s*[^,=;{}]+?(?=[,=;{}])/g, '')
+                .replace(/<\s*[^>]+>\s*/g, '')
+                .replace(/\b(as|interface|type)\b[^;{]+[;{]/g, '')
+                // Remove optional chaining markers
+                .replace(/\?\./g, '.');
+
             const script = document.createElement("script");
-            script.textContent = `(function() { 
+            script.textContent = `(function() {
                 try {
-                    ${transformedCode}
+                    ${cleanedCode}
+                    // Auto-start if enabled
+                    const plugin = Vencord.Plugins.plugins["${plugin.name}"];
+                    if (plugin && plugin.start && typeof plugin.start === 'function') {
+                        plugin.start();
+                    }
                 } catch (e) {
-                    console.error('Plugin execution error:', e);
+                    console.error('Vencord plugin execution error (${plugin.name}):', e);
                 }
             })();`;
-            script.id = `injected-plugin-${plugin.name}`;
+
+            script.id = `vencord-injected-${plugin.name}`;
+            script.dataset.pluginName = plugin.name;
             document.head.appendChild(script);
-            
+            plugin.scriptId = script.id;
             plugin.loaded = true;
+
         } catch (error) {
-            console.error(`Failed to load plugin ${plugin.name}:`, error);
+            console.error(`Failed to load Vencord plugin ${plugin.name}:`, error);
         }
     };
 
     const unloadPlugin = (plugin: InjectedPlugin) => {
-        const script = document.getElementById(`injected-plugin-${plugin.name}`);
-        if (script) script.remove();
-        
-        // If it's an Equicord plugin, also stop it properly
-        if (typeof Vencord !== 'undefined' && Vencord.Plugins) {
-            const equicordPlugin = Vencord.Plugins.plugins[plugin.name];
-            if (equicordPlugin && equicordPlugin.stop && typeof equicordPlugin.stop === 'function') {
+        // Remove script
+        const script = document.getElementById(`vencord-injected-${plugin.name}`);
+        if (script) {
+            script.remove();
+        }
+
+        // Stop plugin properly through Vencord
+        if (Vencord?.Plugins?.plugins?.[plugin.name]) {
+            const vencordPlugin = Vencord.Plugins.plugins[plugin.name];
+            if (vencordPlugin.stop && typeof vencordPlugin.stop === 'function') {
                 try {
-                    equicordPlugin.stop();
+                    vencordPlugin.stop();
                 } catch (e) {
                     console.error(`Error stopping plugin ${plugin.name}:`, e);
                 }
             }
             delete Vencord.Plugins.plugins[plugin.name];
         }
-        
+
+        // Clean up settings
+        if (Vencord?.Settings?.plugins?.[plugin.name]) {
+            Vencord.Settings.plugins[plugin.name].enabled = false;
+        }
+
         plugin.loaded = false;
+        plugin.scriptId = undefined;
     };
 
     const reloadAllPlugins = async () => {
@@ -214,12 +214,12 @@ function PluginInjectorSettings() {
     return (
         <SettingsTab>
             <Alert.Info className={Margins.bottom20}>
-                Inject Equicord plugins dynamically without recompiling. Use at your own risk.
+                Inject Vencord plugins dynamically without recompiling. Use at your own risk.
             </Alert.Info>
 
             <Heading>Plugin Injector</Heading>
             <Paragraph className={Margins.bottom16}>
-                Add and manage custom Equicord plugins from URLs.
+                Add and manage custom Vencord plugins from URLs or local files.
             </Paragraph>
 
             <QuickActionCard>
@@ -244,7 +244,7 @@ function PluginInjectorSettings() {
                     Add URL
                 </Button>
             </div>
-            
+
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <input
                     type="file"
@@ -260,7 +260,7 @@ function PluginInjectorSettings() {
                     Upload File
                 </Button>
                 <Forms.FormText style={{ fontSize: "12px", opacity: 0.7 }}>
-                    Or upload a local .js plugin file
+                    Supports Vencord plugins with definePlugin()
                 </Forms.FormText>
             </div>
 
@@ -275,6 +275,7 @@ function PluginInjectorSettings() {
                                 <Forms.FormTitle>{plugin.name}</Forms.FormTitle>
                                 <Forms.FormText style={{ fontSize: "12px", opacity: 0.7 }}>
                                     {plugin.url}
+                                    {plugin.loaded && ' • Loaded'}
                                 </Forms.FormText>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>

@@ -460,7 +460,7 @@ const _ReactDOM_With_createRoot = {} as typeof Vencord.Webpack.Common.ReactDOM &
 
 export const UIHolder = {
     alert(title: string, content: any) {
-        return this.showConfirmationModal(title, content, { cancelText: null, confirmText: "OK" });
+        return this.showConfirmationModal(title, content, { cancelText: null, confirmText: "Continue" });
     },
     helper() {
         compat_logger.error(new Error("Not implemented."));
@@ -481,7 +481,7 @@ export const UIHolder = {
 
         const {
             confirmText = settings.confirmText || "Confirm",
-            cancelText = settings.cancelText || "Cancel",
+            cancelText = settings.cancelText === null ? null : (settings.cancelText || "Cancel"),
             onConfirm = settings.onConfirm || (() => { }),
             onCancel = settings.onCancel || (() => { }),
             extraReact = settings.extraReact || [],
@@ -520,16 +520,20 @@ export const UIHolder = {
             moreReact.push(reactElement);
         });
 
-        openModal(props => React.createElement(ConfirmationModal, {
-            header: title,
+        const modalProps: any = {
+            header: title || "Alert",
             confirmButtonColor: settings.danger ? "var(--status-danger)" : Colors.BRAND,
             confirmText: confirmText,
-            cancelText: cancelText,
             onConfirm: onConfirm,
-            onCancel: onCancel,
-            children: moreReact,
-            ...props
-        }));
+            children: moreReact
+        };
+
+        if (cancelText !== null) {
+            modalProps.cancelText = cancelText;
+            modalProps.onCancel = onCancel;
+        }
+
+        openModal(props => React.createElement(ConfirmationModal, { ...modalProps, ...props }));
     },
     showNotice_(title, content, options: any = {}) {
         // const { React, ReactDOM } = BdApiReImplementation;
@@ -957,7 +961,7 @@ class BdApiReImplementationInstance {
                 const React = Vencord.Webpack.Common.React;
                 return React.createElement(Menu.Menu, {
                     navId: "bd-compat-menu",
-                    onClose: () => {},
+                    onClose: () => { },
                     "aria-label": "Context Menu",
                     ...props
                 }, this.buildMenuChildren(setup));
@@ -1043,7 +1047,7 @@ class BdApiReImplementationInstance {
                                 const React = Vencord.Webpack.Common.React;
                                 return React.createElement(Menu.Menu, {
                                     navId: "bd-compat-menu",
-                                    onClose: () => {},
+                                    onClose: () => { },
                                     "aria-label": "Context Menu",
                                     ...props
                                 }, this.buildMenuChildren(setup));
@@ -1109,47 +1113,64 @@ class BdApiReImplementationInstance {
         get Spinner() {
             return components.Spinner;
         },
-        SwitchInput(props: { id: string, value: boolean, onChange: (v: boolean) => void; }) {
+        get Flex() {
+            return getGlobalApi().Webpack.getModule(
+                x => x?.displayName === "Flex",
+                { searchExports: true }
+            );
+        },
+        ColorInput(props: { id: string, value: string, onChange: (v: string) => void; }) {
             return getGlobalApi().UI.buildSettingsPanel({
                 settings: [{
                     id: props.id,
                     name: "",
-                    type: "switch",
+                    type: "color",
                     value: props.value,
                 }],
-                onChange(c, id, v: boolean) {
+                onChange(c, id, v: string) {
                     props.onChange(v);
                 },
             });
         },
-        SettingGroup(props: { id: string, name: string, children: React.ReactNode | React.ReactNode[]; }) {
-            return Vencord.Webpack.Common.React.createElement("span", {}, [getGlobalApi().UI.buildSettingsPanel({
+        DropdownInput(props: { id: string, value: any, options: { label: string, value: any; }[], onChange: (v: any) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
                 settings: [{
                     id: props.id,
-                    name: props.name,
-                    type: "category",
-                    settings: [],
+                    name: "",
+                    type: "dropdown",
+                    value: props.value,
+                    options: props.options,
                 }],
-                onChange(c, id, v) { },
-            })], props.children); // ew
-        },
-        SettingItem(props: { id: string, name: string, note: string, children: React.ReactNode | React.ReactNode[]; }) {
-            // return Vencord.Webpack.Common.React.createElement("div", {
-            //     id: `bd_compat-item-${props.id}`,
-            // }, [props.name, props.note, props.children]);
-            const opt = OptionType.COMPONENT;
-            const fakeElement = VenComponents[opt] as typeof VenComponents[keyof typeof VenComponents];
-            return Vencord.Webpack.Common.React.createElement("div", undefined, [Vencord.Webpack.Common.React.createElement(fakeElement, {
-                id: `bd_compat-item-${props.id}`,
-                key: `bd_compat-item-${props.id}`,
-                option: {
-                    type: opt,
-                    component: () => createTextForm(props.name, props.note, false),
+                onChange(c, id, v: any) {
+                    props.onChange(v);
                 },
-                onChange(newValue) { },
-                // onError() { },
-                pluginSettings: { enabled: true, },
-            }), props.children]);
+            });
+        },
+        KeybindInput(props: { id: string, value: any, onChange: (v: any) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "keybind",
+                    value: props.value,
+                }],
+                onChange(c, id, v: any) {
+                    props.onChange(v);
+                },
+            });
+        },
+        NumberInput(props: { id: string, value: number, onChange: (v: number) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "number",
+                    value: props.value,
+                }],
+                onChange(c, id, v: number) {
+                    props.onChange(v);
+                },
+            });
         },
         RadioInput(props: { name: string, onChange: (new_curr: string) => void, value: any, options: { name: string, value: any; }[]; }) {
             return getGlobalApi().UI.buildSettingsPanel({
@@ -1165,7 +1186,87 @@ class BdApiReImplementationInstance {
                 },
             });
         },
+        SearchInput(props: { id: string, value: string, onChange: (v: string) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "text",
+                    value: props.value,
+                }],
+                onChange(c, id, v: string) {
+                    props.onChange(v);
+                },
+            });
+        },
+        SettingGroup(props: { id: string, name: string, children: React.ReactNode | React.ReactNode[]; }) {
+            return Vencord.Webpack.Common.React.createElement("span", {}, [getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: props.name,
+                    type: "category",
+                    settings: [],
+                }],
+                onChange(c, id, v) { },
+            })], props.children);
+        },
+        SettingItem(props: { id: string, name: string, note: string, children: React.ReactNode | React.ReactNode[]; }) {
+            const opt = OptionType.COMPONENT;
+            const fakeElement = VenComponents[opt] as typeof VenComponents[keyof typeof VenComponents];
+            return Vencord.Webpack.Common.React.createElement("div", undefined, [Vencord.Webpack.Common.React.createElement(fakeElement, {
+                id: `bd_compat-item-${props.id}`,
+                key: `bd_compat-item-${props.id}`,
+                option: {
+                    type: opt,
+                    component: () => createTextForm(props.name, props.note, false),
+                },
+                onChange(newValue) { },
+                pluginSettings: { enabled: true },
+            }), props.children]);
+        },
+        SliderInput(props: { id: string, value: number, min: number, max: number, onChange: (v: number) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "slider",
+                    value: props.value,
+                    min: props.min,
+                    max: props.max,
+                }],
+                onChange(c, id, v: number) {
+                    props.onChange(v);
+                },
+            });
+        },
+        SwitchInput(props: { id: string, value: boolean, onChange: (v: boolean) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "switch",
+                    value: props.value,
+                }],
+                onChange(c, id, v: boolean) {
+                    props.onChange(v);
+                },
+            });
+        },
+        TextInput(props: { id: string, value: string, onChange: (v: string) => void; }) {
+            return getGlobalApi().UI.buildSettingsPanel({
+                settings: [{
+                    id: props.id,
+                    name: "",
+                    type: "text",
+                    value: props.value,
+                }],
+                onChange(c, id, v: string) {
+                    props.onChange(v);
+                },
+            });
+        },
     };
+
     get React() {
         return Vencord.Webpack.Common.React;
     }
@@ -1320,7 +1421,7 @@ class BdApiReImplementationInstance {
         };
     }
     alert(title, content) {
-        UIHolder.showConfirmationModal(title, content, { cancelText: null, confirmText: "OK" });
+        UIHolder.showConfirmationModal(title, content, { cancelText: null, confirmText: "Continue" });
     }
     showToast(content, toastType = 1) {
         UIHolder.showToast(content, toastType);
