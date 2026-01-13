@@ -74,6 +74,16 @@ jobs:
                 rm -f release/*.map
 
 
-            - name: Upload Equicord Stable
+            - name: Ensure latest release exists
+              env:
+                GITHUB_TOKEN: ${{ github.token }}
               run: |
-                  gh release upload latest --clobber dist/release/*
+                gh release view latest --repo "$GITHUB_REPOSITORY" || \
+                gh release create latest --repo "$GITHUB_REPOSITORY" --title "latest" --notes ""
+            
+            - name: Upload assets to latest
+              env:
+                GITHUB_TOKEN: ${{ github.token }}
+              run: |
+                gh release upload latest --repo "$GITHUB_REPOSITORY" --clobber dist/release/*
+
