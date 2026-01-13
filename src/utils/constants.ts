@@ -657,7 +657,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     kokofixcomputers:
     {
         name: "kokofixcomputers",
-        id: 1096839213313446019n,
+        id: 1096839213313446019n
     }
 } satisfies Record<string, Dev>);
 
