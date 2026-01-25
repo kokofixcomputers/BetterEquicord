@@ -5,12 +5,14 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginsIcon, UpdaterIcon } from "@components/Icons";
+import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PlusIcon, PluginsIcon, UpdaterIcon, VesktopSettingsIcon } from "@components/Icons";
 import {
     BackupAndRestoreTab,
+    BetterDiscordTab,
     ChangelogTab,
     CloudTab,
     PatchHelperTab,
+    PluginInjectorTab,
     PluginsTab,
     ThemesTab,
     UpdaterTab,
@@ -215,7 +217,22 @@ export default definePlugin({
     },
 
     getSettingsSectionMappings() {
-        return settingsSectionMap;
+        return [
+            ["EquicordSettings", "equicord_main_panel"],
+            ["EquicordPlugins", "equicord_plugins_panel"],
+            ["EquicordThemes", "equicord_themes_panel"],
+            ["EquicordBetterDiscord", "equicord_betterdiscord_panel"],
+            ["EquicordPluginInjector", "equicord_plugininjector_panel"],
+            ["EquicordUpdater", "equicord_updater_panel"],
+            ["EquicordChangelog", "equicord_changelog_panel"],
+            ["EquicordCloud", "equicord_cloud_panel"],
+            ["EquicordBackupAndRestore", "equicord_backup_restore_panel"],
+            ["EquicordPatchHelper", "equicord_patch_helper_panel"],
+            ["EquibopSettings", "equicord_equibop_settings_panel"],
+            ["EquicordDiscordIcons", "equicord_icon_viewer"],
+            ["EquicordThemeLibrary", "equicord_theme_library"],
+            ["EquicordIRememberYou", "equicord_i_remember_you"],
+        ];
     },
 
     buildLayout(originalLayoutBuilder: SettingsLayoutBuilder) {
@@ -245,6 +262,18 @@ export default definePlugin({
                 title: "Themes",
                 Component: ThemesTab,
                 Icon: PaintbrushIcon
+            }),
+            buildEntry({
+                key: "equicord_betterdiscord",
+                title: "BetterDiscord",
+                Component: BetterDiscordTab,
+                Icon: PluginsIcon
+            }),
+            buildEntry({
+                key: "equicord_plugininjector",
+                title: "Plugin Injector",
+                Component: PluginInjectorTab,
+                Icon: PlusIcon
             }),
             !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
                 key: "equicord_updater",
@@ -284,7 +313,7 @@ export default definePlugin({
         const equicordSection: SettingsLayoutNode = {
             key: "equicord_section",
             type: LayoutTypes.SECTION,
-            useTitle: () => "Equicord Settings",
+            useTitle: () => "Equicord",
             buildLayout: () => equicordEntries
         };
 
@@ -320,12 +349,12 @@ export default definePlugin({
         return [
             {
                 section: SectionTypes.HEADER,
-                label: "Equicord",
+                label: "BetterEquicord",
                 className: "vc-settings-header",
             },
             {
                 section: "EquicordSettings",
-                label: "Equicord",
+                label: "BetterEquicord",
                 element: VencordTab,
                 className: "vc-settings",
             },
@@ -342,6 +371,20 @@ export default definePlugin({
                 searchableTitles: ["Themes"],
                 element: ThemesTab,
                 className: "vc-themes",
+            },
+            {
+                section: "EquicordBetterDiscord",
+                label: "BetterDiscord",
+                searchableTitles: ["BetterDiscord"],
+                element: BetterDiscordTab,
+                className: "vc-betterdiscord",
+            },
+            {
+                section: "EquicordPluginInjector",
+                label: "Plugin Injector",
+                searchableTitles: ["Plugin Injector"],
+                element: PluginInjectorTab,
+                className: "vc-plugininjector",
             },
             !IS_UPDATER_DISABLED && {
                 section: "EquicordUpdater",
@@ -470,7 +513,7 @@ export default definePlugin({
     getInfoRows() {
         const { electronVersion, chromiumVersion, getVersionInfo } = this;
 
-        const rows = [`Equicord ${gitHashShort}${getVersionInfo()}`];
+        const rows = [`BetterEquicord ${gitHashShort}${getVersionInfo()}`];
 
         if (electronVersion) rows.push(`Electron ${electronVersion}`);
         if (chromiumVersion) rows.push(`Chromium ${chromiumVersion}`);
