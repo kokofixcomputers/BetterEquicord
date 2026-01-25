@@ -50,7 +50,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "BetterUserArea",
     description: "Customize and make the user area more clean.",
-    authors: [EquicordDevs.Prism],
+    authors: [EquicordDevs.prism],
     settings,
     patches: [
         {
@@ -63,10 +63,17 @@ export default definePlugin({
         },
         {
             find: "#{intl::ACCOUNT_SPEAKING_WHILE_MUTED}",
-            replacement: {
-                match: /\{showRefreshedAudioContextMenu:(\i)\}=(?=.+?location:"\w+Button")/g,
-                replace: "{showRefreshedAudioContextMenu:$1}=$self.settings.store.removeAudioMenus?{showRefreshedAudioContextMenu:!1}:"
-            },
+            replacement: [
+                {
+                    match: /(?<=#{intl::MUTE}\),)className:\i\.\i,/g,
+                    replace: ""
+                },
+                {
+                    // TODO: MAKE THIS BETTER
+                    match: /,\(0,\i\.jsxs?\).{0,130}#{intl::18wnuD::raw}.{0,530}\}\)(?=\])/g,
+                    replace: ""
+                }
+            ],
             predicate: () => settings.store.removeAudioMenus
         },
         {
