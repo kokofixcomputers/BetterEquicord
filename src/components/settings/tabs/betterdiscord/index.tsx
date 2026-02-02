@@ -16,7 +16,8 @@ import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { Margins } from "@utils/margins";
-import { Card, Forms, React } from "@webpack/common";
+import { React } from "@webpack/common";
+import { Card, Forms } from "@webpack/common";
 
 import { BetterDiscordManager } from "./manager";
 import FileSystemViewer from "./FileSystemViewer";
