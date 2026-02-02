@@ -6,9 +6,7 @@
 
 import { useSettings } from "@api/Settings";
 import { Alert } from "@components/Alert";
-import { Button } from "@components/Button";
 import { Divider } from "@components/Divider";
-import { Flex } from "@components/Flex";
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { FolderIcon, PlusIcon, RestartIcon } from "@components/Icons";
@@ -16,8 +14,7 @@ import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { Margins } from "@utils/margins";
-import { React } from "@webpack/common";
-import { Card, Forms } from "@webpack/common";
+import { Card, Forms, React } from "@webpack/common";
 
 import { BetterDiscordManager } from "./manager";
 import FileSystemViewer from "./FileSystemViewer";

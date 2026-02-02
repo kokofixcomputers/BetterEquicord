@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Forms, React, useRef } from "@webpack/common";
+import { React } from "@webpack/common";
+import { Forms } from "@webpack/common";
 
 import { getGlobalApi } from "../../../../bdcompat/fakeBdApi";
 import { addCustomPlugin, convertPlugin } from "../../../../bdcompat/pluginConstructor";
@@ -20,7 +21,7 @@ export default function FileSystemViewer() {
         fetchChildren: function () { return fetchDirContentForId(this.id); },
     } as TreeNode;
 
-    const ref = useRef(baseNode.id);
+    const ref = React.useRef(baseNode.id);
 
     const handleNodeSelect = (node: TreeNode) => {
         ref.current = node.id;
