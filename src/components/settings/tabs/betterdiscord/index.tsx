@@ -155,7 +155,8 @@ function BetterDiscordSettings() {
                 Browse and manage BetterDiscord plugin files and directories.
             </Paragraph>
 
-            <FileSystemViewer />
+            {/* <FileSystemViewer /> */}
+            <Paragraph>FileSystemViewer temporarily disabled due to compatibility issues.</Paragraph>
         </SettingsTab>
     );
 }
