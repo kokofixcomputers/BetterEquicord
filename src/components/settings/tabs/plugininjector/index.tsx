@@ -12,10 +12,11 @@ import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { PlusIcon, RestartIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
-import { SettingsTab, wrapTab } from "@components/settings";
+import { SettingsTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { Margins } from "@utils/margins";
-import { Card, Forms, React } from "@webpack/common";
+import { GuildMemberStore, React, Select, UserStore } from "@webpack/common";
+import { Card, Forms } from "@webpack/common";
 
 interface InjectedPlugin {
     name: string;
@@ -301,4 +302,4 @@ function PluginInjectorSettings() {
     );
 }
 
-export default wrapTab(PluginInjectorSettings, "Plugin Injector");
+export default PluginInjectorSettings;

@@ -11,10 +11,11 @@ import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { FolderIcon, PlusIcon, RestartIcon } from "@components/Icons";
 import { Paragraph } from "@components/Paragraph";
-import { SettingsTab, wrapTab } from "@components/settings";
+import { SettingsTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { Margins } from "@utils/margins";
-import { Card, Forms, React } from "@webpack/common";
+import { GuildMemberStore, React, Select, UserStore } from "@webpack/common";
+import { Card, Forms } from "@webpack/common";
 
 import { BetterDiscordManager } from "./manager";
 import FileSystemViewer from "./FileSystemViewer";
@@ -160,4 +161,4 @@ function BetterDiscordSettings() {
     );
 }
 
-export default wrapTab(BetterDiscordSettings, "BetterDiscord");
+export default BetterDiscordSettings;
