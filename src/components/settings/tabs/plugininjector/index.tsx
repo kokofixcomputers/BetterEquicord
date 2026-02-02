@@ -15,7 +15,7 @@ import { Paragraph } from "@components/Paragraph";
 import { SettingsTab, wrapTab } from "@components/settings";
 import { QuickAction, QuickActionCard } from "@components/settings/QuickAction";
 import { Margins } from "@utils/margins";
-import { Card, Forms, React, TextInput } from "@webpack/common";
+import { Card, Forms, React } from "@webpack/common";
 
 interface InjectedPlugin {
     name: string;
@@ -234,11 +234,12 @@ function PluginInjectorSettings() {
 
             <Heading className={Margins.top20}>Add New Plugin</Heading>
             <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
-                <TextInput
+                <input
+                    type="text"
                     placeholder="Plugin URL (e.g., https://example.com/plugin.js)"
                     value={newPluginUrl}
-                    onChange={setNewPluginUrl}
-                    style={{ flex: 1 }}
+                    onChange={(e) => setNewPluginUrl(e.target.value)}
+                    style={{ flex: 1, padding: "8px", borderRadius: "4px", border: "1px solid var(--background-modifier-accent)", backgroundColor: "var(--input-background)", color: "var(--text-normal)" }}
                 />
                 <Button onClick={addPlugin} disabled={loading || !newPluginUrl.trim()}>
                     Add URL
