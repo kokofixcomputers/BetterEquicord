@@ -74,7 +74,6 @@ jobs:
           rm -f release/*.map
 
       - name: Ensure latest release exists
-        if: ${{ vars.ACT == 'false' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
@@ -82,21 +81,13 @@ jobs:
           gh release create latest --repo "$GITHUB_REPOSITORY" --title "latest" --notes ""
 
       - name: Upload assets to latest
-        if: ${{ vars.ACT == 'false' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           gh release upload latest --repo "$GITHUB_REPOSITORY" --clobber dist/release/*
 
-      - name: Upload Equicord Stable
-        if: ${{ vars.ACT == 'false' }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          gh release upload latest --clobber dist/release/*
-
       - name: Upload Plugin JSONs to Equibored repo
-        if: github.repository == 'Equicord/Equicord' && vars.ACT == 'false'
+        if: github.repository == 'Equicord/Equicord'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
