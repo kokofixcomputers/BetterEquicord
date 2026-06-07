@@ -77,6 +77,7 @@ export default {
 
     native: {
         getVersions: () => process.versions as Partial<NodeJS.ProcessVersions>,
+        supportsWindowsMaterial: () => sendSync<boolean>(IpcEvents.SUPPORTS_WINDOWS_MATERIAL),
         openExternal: (url: string) => invoke<void>(IpcEvents.OPEN_EXTERNAL, url),
         getRendererCss: () => invoke<string>(IpcEvents.GET_RENDERER_CSS),
         onRendererCssUpdate: (cb: (newCss: string) => void) => {
@@ -96,6 +97,12 @@ export default {
         removeOverride: (url: string) => invoke<boolean>(IpcEvents.CSP_REMOVE_OVERRIDE, url),
         requestAddOverride: (url: string, directives: string[], callerName: string) =>
             invoke<CspRequestResult>(IpcEvents.CSP_REQUEST_ADD_OVERRIDE, url, directives, callerName),
+    },
+
+    tray: {
+        setUpdateState: (available: boolean) => ipcRenderer.send(IpcEvents.SET_TRAY_UPDATE_STATE, available),
+        onCheckUpdates: (cb: () => void) => { ipcRenderer.on(IpcEvents.TRAY_CHECK_UPDATES, cb); },
+        onRepair: (cb: () => void) => { ipcRenderer.on(IpcEvents.TRAY_REPAIR, cb); },
     },
 
     pluginHelpers: PluginHelpers

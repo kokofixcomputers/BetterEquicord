@@ -6,16 +6,16 @@
 
 import "./styles.css";
 
-import { BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Badges";
+import { BadgePosition, BadgeUserArgs } from "@api/Badges";
 import { Badges } from "@api/index";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
-import { ModalContent, ModalHeader, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
-import { Forms, RelationshipStore } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { Forms, Modal,openModal, RelationshipStore } from "@webpack/common";
 
 interface rankInfo {
     title: string;
@@ -84,10 +84,12 @@ const ranks: rankInfo[] =
     ];
 
 function openRankModal(rank: rankInfo) {
-    openModal(props => (
+    openModal((props: RenderModalProps) => (
         <ErrorBoundary>
-            <ModalRoot {...props} size={ModalSize.DYNAMIC}>
-                <ModalHeader>
+            <Modal
+                {...props}
+                size="sm"
+                title={
                     <Flex className={cl("flex")}>
                         <Forms.FormTitle
                             className={cl("img")}
@@ -97,15 +99,14 @@ function openRankModal(rank: rankInfo) {
                             {rank.title}
                         </Forms.FormTitle>
                     </Flex>
-                </ModalHeader>
-                <ModalContent>
-                    <div className={cl("text")}>
-                        <Paragraph>
-                            {rank.description}
-                        </Paragraph>
-                    </div>
-                </ModalContent>
-            </ModalRoot>
+                }
+            >
+                <div className={cl("text")}>
+                    <Paragraph>
+                        {rank.description}
+                    </Paragraph>
+                </div>
+            </Modal>
         </ErrorBoundary >
     ));
 }
@@ -121,8 +122,9 @@ function shouldShowBadge(userId: string, requirement: number, index: number) {
 }
 
 function getBadgesToApply() {
-    const badgesToApply: ProfileBadge[] = ranks.map((rank, index) => {
+    return ranks.map((rank, index) => {
         return ({
+            id: `friendship_ranks_badge_${index}`,
             description: rank.title,
             iconSrc: rank.iconSrc,
             position: BadgePosition.END,
@@ -136,13 +138,12 @@ function getBadgesToApply() {
             },
         });
     });
-
-    return badgesToApply;
 }
 
 export default definePlugin({
     name: "FriendshipRanks",
     description: "Adds badges showcasing how long you have been friends with a user for",
+    tags: ["Friends"],
     authors: [Devs.Samwich],
     start() {
         getBadgesToApply().forEach(b => Badges.addProfileBadge(b));

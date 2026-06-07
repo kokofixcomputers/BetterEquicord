@@ -130,12 +130,13 @@ function isStickerBlocked(name) {
 export default definePlugin({
     name: "StickerBlocker",
     description: "Allows you to block stickers from being displayed.",
+    tags: ["Chat", "Emotes", "Utility"],
     authors: [Devs.Samwich],
     patches: [
         {
-            find: /\i\.\i\.STICKER_MESSAGE/,
+            find: ".STICKERS_CONSTANTS_STICKER_DIMENSION)",
             replacement: {
-                match: /}\),\(null!=\i\?\i:(\i)\)\.name]}\);/,
+                match: /}\),\(\i\?\?(\i)\)\.name\]\}\);/,
                 replace: "$& if($self.isBlocked($1.id)) return($self.blockedComponent($1));"
             }
         }

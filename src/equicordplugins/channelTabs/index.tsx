@@ -15,8 +15,8 @@ import { ChannelStore, Menu } from "@webpack/common";
 import { JSX } from "react";
 
 import ChannelsTabsContainer from "./components/ChannelTabsContainer";
-import { BasicChannelTabsProps, createTab, handleChannelSwitch, settings } from "./util";
 import * as ChannelTabsUtils from "./util";
+import { BasicChannelTabsProps, createTab, handleChannelSwitch, settings } from "./util";
 
 const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channel: Channel, messageId?: string; }) => {
     const { channel, messageId } = props;
@@ -47,8 +47,9 @@ const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channe
 export default definePlugin({
     name: "ChannelTabs",
     description: "Group your commonly visited channels in tabs, like a browser",
-    authors: [Devs.TheSun, Devs.TheKodeToad, EquicordDevs.keifufu, Devs.Nickyux, EquicordDevs.DiabeloDEV, EquicordDevs.justjxke],
-    dependencies: ["ContextMenuAPI"],
+    tags: ["Appearance", "Customisation", "Organisation", "Servers"],
+    authors: [Devs.TheSun, Devs.TheKodeToad, EquicordDevs.keifufu, Devs.Nickyux, EquicordDevs.DiabeloDEV, EquicordDevs.justjxke, EquicordDevs.keircn],
+    dependencies: ["ContextMenuAPI", "ConcatenatedModules"],
     contextMenus: {
         "channel-mention-context": contextMenuPatch,
         "channel-context": contextMenuPatch,
@@ -61,12 +62,12 @@ export default definePlugin({
             find: '"AppView"',
             replacement: [
                 {
-                    match: /(\?void 0:(\i)\.channelId.{0,600})"div",{(?=className:\i\.\i)/,
+                    match: /((\i\?.params)\?\.channelId.{0,600})"div",{(?=className:\i\.\i)/,
                     replace: "$1$self.render,{currentChannel:$2,",
                     predicate: () => settings.store.tabBarPosition === "top"
                 },
                 {
-                    match: /(\?void 0:(\i)\.channelId.{0,300})"div",{/,
+                    match: /((\i\?.params)\?.channelId.{0,300})"div",{/,
                     replace: "$1$self.render,{currentChannel:$2,",
                     predicate: () => settings.store.tabBarPosition === "bottom"
                 }
@@ -74,9 +75,9 @@ export default definePlugin({
         },
         // intercept channel navigation to switch/create tabs
         {
-            find: '"transitionToGuild - Transitioning to "',
+            find: "`transitionToGuild - Transitioning to",
             replacement: {
-                match: /(\i\((\i),(\i),\i,\i\)\{)(.{0,25}"transitionToGuild)/,
+                match: /(\i\((\i),(\i),\i,\i\)\{)(.{0,25}`transitionToGuild)/,
                 replace: "$1$self.handleNavigation($2,$3);$4"
             }
         },
@@ -98,7 +99,7 @@ export default definePlugin({
         },
         // ctrl click to open in new tab in search results
         {
-            find: "(this,\"handleMessageClick\"",
+            find: "__invalid_searchResultFocusRing",
             replacement: {
                 match: /(\i)\.stopPropagation.{0,50}(?=null!=(\i))/,
                 replace: "$&if ($1.ctrlKey) return $self.open($2);"
@@ -106,7 +107,7 @@ export default definePlugin({
         },
         // prevent issues with the pins/inbox popouts being too tall
         {
-            find: "renderCloseButton()",
+            find: "#{intl::JUMP}),onClick:",
             replacement: {
                 match: /\i&&\((\i).maxHeight.{0,5}\)/,
                 replace: "$&;$1.maxHeight-=$self.containerHeight"

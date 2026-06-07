@@ -17,11 +17,10 @@ import { Notice } from "@components/Notice";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
-import { openModal } from "@utils/modal";
 import definePlugin, { OptionType } from "@utils/types";
 import { User } from "@vencord/discord-types";
 import { extractAndLoadChunksLazy } from "@webpack";
-import { IconUtils, Menu, UserStore } from "@webpack/common";
+import { IconUtils, Menu, openModal,UserStore } from "@webpack/common";
 
 import { SetAvatarModal } from "./AvatarModal";
 
@@ -29,7 +28,7 @@ const cl = classNameFactory("vc-userpfp-");
 const DONO_URL = "https://ko-fi.com/coolesding";
 const INVITE_LINK = "userpfp-1129784704267210844";
 
-export const requireSettingsMenu = extractAndLoadChunksLazy(['name:"UserSettings"'], /createPromise:.{0,20}(\i\.\i\("?.+?"?\).*?).then\(\i\.bind\(\i,"?(.+?)"?\)\).{0,50}"UserSettings"/);
+export const requireSettingsModal = extractAndLoadChunksLazy(['type:"USER_SETTINGS_MODAL_OPEN"']);
 export const KEY_DATASTORE = "vencord-custom-avatars";
 export const data = { avatars: {} as Record<string, string> };
 
@@ -65,7 +64,8 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "UserPFP",
     description: "Allows you to use an animated avatar without Nitro",
-    authors: [EquicordDevs.nexpid, Devs.thororen, EquicordDevs.soapphia],
+    tags: ["Appearance", "Customisation", "Servers"],
+    authors: [EquicordDevs.nexpid, Devs.thororen, EquicordDevs.soapphia, EquicordDevs.sketchmyname],
     settings,
     data,
     settingsAboutComponent: () => (
@@ -118,7 +118,7 @@ export default definePlugin({
                     id="set-avatar"
                     icon={PencilIcon}
                     action={async () => {
-                        await requireSettingsMenu();
+                        await requireSettingsModal();
                         openModal(modalProps => <SetAvatarModal userId={user.id} modalProps={modalProps} />);
                     }}
                 />
@@ -129,13 +129,20 @@ export default definePlugin({
         if (settings.store.preferNitro && user.avatar?.startsWith("a_")) return original(user, animated, size);
         if (!data.avatars[user.id]) return original(user, animated, size);
 
-        const res = new URL(data.avatars[user.id]);
-        res.searchParams.set("animated", animated ? "true" : "false");
-        if (res && !animated) {
-            res.pathname = res.pathname.replaceAll(/\.gifv?/g, ".png");
-        }
+        const avatarUrl = data.avatars[user.id];
 
-        return res.toString();
+        if (avatarUrl.startsWith("data:")) return avatarUrl;
+
+        try {
+            const res = new URL(avatarUrl);
+            res.searchParams.set("animated", animated ? "true" : "false");
+            if (!animated) {
+                res.pathname = res.pathname.replaceAll(/\.gifv?/g, ".png");
+            }
+            return res.toString();
+        } catch {
+            return original(user, animated, size);
+        }
     },
     getAvatarServerHook: (original: any) => (config: any) => {
         const { userId, avatar, size, canAnimate } = config;

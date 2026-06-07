@@ -5,14 +5,14 @@
  */
 
 import { popNotice, showNotice } from "@api/Notices";
+import { Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
+import { loadLazyChunks } from "@debug/loadLazyChunks";
+import { reporterData } from "@debug/reporterData";
 import { getIntlMessageFromHash } from "@utils/discord";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
 import { filters, findAll, search, wreq } from "@webpack";
 import { React, Toasts, useState } from "@webpack/common";
-import { loadLazyChunks } from "debug/loadLazyChunks";
-import { reporterData } from "debug/reporterData";
-import { Settings } from "Vencord";
 
 import { CLIENT_VERSION, logger, PORT, settings } from ".";
 import { Recieve } from "./types";
@@ -262,6 +262,9 @@ export function initWs(isManual = false) {
                                     case "Component":
                                         results = findAll(parsedArgs[0]);
                                         break;
+                                    case "CssClasses":
+                                        results = findAll(filters.byClassNames(...parsedArgs), { topLevelOnly: true });
+                                        break;
                                     case "ByProps":
                                         results = findAll(filters.byProps(...parsedArgs));
                                         break;
@@ -372,6 +375,9 @@ export function initWs(isManual = false) {
                             break;
                         case "ByProps":
                             results = findAll(filters.byProps(...parsedArgs));
+                            break;
+                        case "CssClasses":
+                            results = findAll(filters.byClassNames(...parsedArgs), { topLevelOnly: true });
                             break;
                         case "Store":
                             results = findAll(filters.byStoreName(parsedArgs[0]));

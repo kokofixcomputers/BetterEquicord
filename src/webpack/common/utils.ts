@@ -46,11 +46,9 @@ export const Constants: t.Constants = mapMangledModuleLazy('ME:"/users/@me"', {
 export const RestAPI: t.RestAPI = findLazy(m => typeof m === "object" && m.del && m.put);
 export const moment: typeof import("moment") = findByPropsLazy("parseTwoDigitYear");
 
-export const hljs: typeof import("highlight.js").default = findByPropsLazy("highlight", "registerLanguage");
-
 export const useDrag = findByCodeLazy("useDrag::spec.begin was deprecated");
 // you cant make a better finder i love that they remove display names sm
-export const useDrop = findByCodeLazy(".options);return", ".collect,");
+export const useDrop = findByCodeLazy(".disconnectDropTarget()", ".dropTargetOptions=");
 
 export const { match, P }: { match: typeof TSPattern["match"], P: typeof TSPattern["P"]; } = mapMangledModuleLazy("@ts-pattern/matcher", {
     match: filters.byCode("return new"),
@@ -83,6 +81,7 @@ const ToastType = {
     BOOKMARK: "bookmark",
     CLOCK: "clock"
 };
+
 const ToastPosition = {
     TOP: 0,
     BOTTOM: 1
@@ -107,26 +106,34 @@ export interface ToastOptions {
     duration?: number;
 }
 
+interface ToastsExports {
+    showToast: (data: ToastData) => void;
+    popToast(): void;
+}
+
+const ToastsExports = mapMangledModuleLazy(".currentToastMap.has(", {
+    showToast: filters.byCode(".currentToastMap.has("),
+    popToast: filters.byCode(".delete(")
+});
+
+export function createToast(message: string, type: string, options?: ToastOptions): ToastData {
+    return {
+        message,
+        id: Toasts.genId(),
+        type,
+        options
+    };
+}
+
 export const Toasts = {
     Type: ToastType,
     Position: ToastPosition,
-    // what's less likely than getting 0 from Math.random()? Getting it twice in a row
     genId: () => (Math.random() || Math.random()).toString(36).slice(2),
 
-    // hack to merge with the following interface, dunno if there's a better way
-    ...{} as {
-        show(data: ToastData): void;
-        pop(): void;
-        create(message: string, type: string, options?: ToastOptions): ToastData;
-    }
+    show: ToastsExports.showToast,
+    pop: ToastsExports.popToast,
+    create: createToast,
 };
-
-// This is the same module but this is easier
-waitFor("showToast", m => {
-    Toasts.show = m.showToast;
-    Toasts.pop = m.popToast;
-    Toasts.create = m.createToast;
-});
 
 /**
  * Show a simple toast. If you need more options, use Toasts.show manually
@@ -141,12 +148,12 @@ export const UserUtils = {
 
 export const UploadManager = findByPropsLazy("clearAll", "addFile");
 export const UploadHandler = {
-    promptToUpload: findByCodeLazy("Unexpected mismatch between files and file metadata") as (files: File[], channel: t.Channel, draftType: Number) => void
+    promptToUpload: findByCodeLazy("Unexpected mismatch between files and file metadata") as (files: File[], channel: t.Channel, draftType: Number) => Promise<void>
 };
 
 export const ApplicationAssetUtils = mapMangledModuleLazy("getAssetImage: size must === [", {
     fetchAssetIds: filters.byCode('.startsWith("http:")', ".dispatch({"),
-    getAssetFromImageURL: filters.byCode("].serialize(", ',":"'),
+    getAssetFromImageURL: filters.byCode("].serialize(", ":null"),
     getAssetImage: filters.byCode("getAssetImage: size must === ["),
     getAssets: filters.byCode(".assets")
 });
@@ -163,7 +170,7 @@ export const ChannelRouter: t.ChannelRouter = mapMangledModuleLazy('"Thread must
 });
 
 export let SettingsRouter: any;
-waitFor(["open", "saveAccountChanges"], m => SettingsRouter = m);
+waitFor(["openUserSettings", "USER_SETTINGS_MODAL_KEY"], m => SettingsRouter = m);
 
 export const PermissionsBits: t.PermissionsBits = findLazy(m => typeof m.ADMINISTRATOR === "bigint");
 
@@ -174,11 +181,6 @@ export const { zustandCreate } = mapMangledModuleLazy(["useSyncExternalStoreWith
 export const { zustandPersist } = mapMangledModuleLazy(".onRehydrateStorage)?", {
     zustandPersist: filters.byCode(/(\(\i,\i\))=>.+?\i\1/)
 });
-
-export const { openUserSettings } = findByPropsLazy("openUserSettings");
-export function openUserSettingsPanel(panel: string) {
-    openUserSettings(panel + "_panel");
-}
 
 export const MessageActions = findByPropsLazy("editMessage", "sendMessage");
 export const MessageCache = findByPropsLazy("clearCache", "_channelMessages");
@@ -193,6 +195,28 @@ export const DraftActions = findByPropsLazy("saveDraft", "changeDraft");
 export const PinActions = findByPropsLazy("pinMessage", "unpinMessage");
 
 export const IconUtils: t.IconUtils = findByPropsLazy("getGuildBannerURL", "getUserAvatarURL");
+
+export const ColorUtils = mapMangledModuleLazy("Invalid hex color format", {
+    rgbToHex: filters.byCode(".toString(16).slice(1)"),
+    hexToRgba: filters.byCode("`rgba(${"),
+    hexToRgb: filters.byCode(".rgb();return"),
+    rgbToHsl: filters.byCode("saturation:", "lightness:"),
+    mixColors: filters.byCode(".substring(1,3),16)"),
+    hexWithAlpha: filters.byCode("Invalid hex color format"),
+    getDominantColor: filters.byCode("hex:", "hsv:"),
+    generatePalette: filters.byCode("360/("),
+});
+
+export const ImageUtils = mapMangledModuleLazy("Input data is not a valid image.", {
+    extractColors: filters.byCode('"number"==typeof'),
+    fileToDataURL: filters.byCode("Result must be a string"),
+    dataURLToBlob: filters.byCode("new Uint8Array("),
+    dataURLToFile: filters.byCode("new File(["),
+    fitDimensions: filters.byCode("minWidth:", "minHeight:"),
+    loadImage: filters.byCode('addEventListener("load"'),
+    isAnimatedPNG: filters.byCode("File is not a PNG"),
+    base64Size: filters.byCode("Input data is not a valid image."),
+});
 
 export const ReadStateUtils = mapMangledModuleLazy('type:"ENABLE_AUTOMATIC_ACK",', {
     ackChannel: filters.byCode(".isForumLikeChannel(")
@@ -221,8 +245,8 @@ export const DisplayProfileUtils: t.DisplayProfileUtils = mapMangledModuleLazy(/
 });
 
 export const DateUtils: t.DateUtils = mapMangledModuleLazy("millisecondsInUnit:", {
-    calendarFormat: filters.byCode("sameElse"),
-    dateFormat: filters.byCode('":'),
+    calendarFormat: filters.byCode('<-1?"sameElse":'),
+    dateFormat: filters.byCode('<2?"nextDay":"sameElse";'),
     isSameDay: filters.byCode(/Math\.abs\(\i-\i\)/),
     diffAsUnits: filters.byCode("days:0", "millisecondsInUnit")
 });
@@ -230,3 +254,9 @@ export const DateUtils: t.DateUtils = mapMangledModuleLazy("millisecondsInUnit:"
 export const MessageTypeSets: t.MessageTypeSets = findByPropsLazy("REPLYABLE", "FORWARDABLE");
 
 export const fetchApplicationsRPC = findByCodeLazy('"Invalid Origin"', ".application");
+
+export const CloudUploader = findLazy(m => m.prototype?.trackUploadFinished) as typeof t.CloudUpload;
+
+export const URLUtils: t.URLUtils = findByPropsLazy("URL_REGEX", "makeUrl", "isDiscordUrl");
+export const Humanize: t.Humanize = findByPropsLazy("filesize", "relativeTime", "ordinal");
+export const EmojiUtils: t.EmojiUtils = findByPropsLazy("getEmojiColors", "getURL");

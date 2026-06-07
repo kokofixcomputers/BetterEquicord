@@ -25,7 +25,6 @@ export const DONOR_ROLE_ID = "1173316879083896912";
 export const CONTRIB_ROLE_ID = "1222677964760682556";
 export const EQUICORD_TEAM = "1173520023239786538";
 export const EQUICORD_HELPERS = "1326406112144265257";
-export const EQUIBOP_CONTRIB_ROLE_ID = "1287079931645263968";
 export const VENCORD_CONTRIB_ROLE_ID = "1173343399470964856";
 export const EQUIBOT_USER_ID = "1243063117852835941";
 
@@ -44,7 +43,7 @@ export const VC_SUPPORT_CHANNEL_IDS = [VC_SUPPORT_CHANNEL_ID, VESKTOP_SUPPORT_CH
 export const GUILD_IDS = [GUILD_ID, VC_GUILD_ID];
 export const SUPPORT_CHANNEL_IDS = [SUPPORT_CHANNEL_ID, VC_SUPPORT_CHANNEL_ID];
 export const DONOR_ROLE_IDS = [DONOR_ROLE_ID, VC_DONOR_ROLE_ID];
-export const CONTRIB_ROLE_IDS = [CONTRIB_ROLE_ID, EQUIBOP_CONTRIB_ROLE_ID, VENCORD_CONTRIB_ROLE_ID, VC_CONTRIB_ROLE_ID];
+export const CONTRIB_ROLE_IDS = [CONTRIB_ROLE_ID, VENCORD_CONTRIB_ROLE_ID, VC_CONTRIB_ROLE_ID];
 
 const platform = navigator.platform.toLowerCase();
 export const IS_WINDOWS = platform.startsWith("win");
@@ -467,7 +466,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     nin0dev: {
         name: "nin0dev",
-        id: 886685857560539176n
+        id: 1395533040914141235n
     },
     Elvyra: {
         name: "Elvyra",
@@ -497,9 +496,9 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "puv",
         id: 469441552251355137n
     },
-    Kodarru: {
-        name: "Kodarru",
-        id: 785227396218748949n
+    IcedMarina: {
+        name: "icedmarina",
+        id: 594406131670188042n
     },
     nakoyasha: {
         name: "nakoyasha",
@@ -621,6 +620,10 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "jamesbt365",
         id: 158567567487795200n
     },
+    Darxoon: {
+        name: "Darxoon",
+        id: 409745838898937866n
+    },
     samsam: {
         name: "samsam",
         id: 400482410279469056n
@@ -628,6 +631,11 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     Cootshk: {
         name: "Cootshk",
         id: 921605971577548820n
+    },
+    koish1: {
+        name: "koish1",
+        id: 291089948709486593n,
+        badge: false,
     },
     thororen: {
         name: "thororen",
@@ -711,6 +719,10 @@ export const EquicordDevs = Object.freeze({
         name: "camila314",
         id: 738592270617542716n
     },
+    nickwoah: {
+        name: "nickwoah",
+        id: 644298972420374528n
+    },
     Wolfie: {
         name: "wolfieeeeeeee",
         id: 347096063569559553n
@@ -773,7 +785,7 @@ export const EquicordDevs = Object.freeze({
     },
     Synth: {
         name: "synthxcx",
-        id: 934393331562205195n
+        id: 1116836557396119613n
     },
     Hanzy: {
         name: "hanzydev",
@@ -892,8 +904,8 @@ export const EquicordDevs = Object.freeze({
         id: 1271128098301022240n
     },
     nin0dev: {
-        name: "nin0dev",
-        id: 886685857560539176n
+        name: "nin0",
+        id: 1395533040914141235n
     },
     D3SOX: {
         name: "D3SOX",
@@ -952,9 +964,9 @@ export const EquicordDevs = Object.freeze({
         name: "castdrian",
         id: 224617799434108928n
     },
-    echo: {
-        name: "ECHO",
-        id: 712639419785412668n
+    amy: {
+        name: "Amy",
+        id: 603229858612510720n
     },
     RyanCaoDev: {
         name: "RyanCaoDev",
@@ -1009,7 +1021,7 @@ export const EquicordDevs = Object.freeze({
         id: 984392761929256980n
     },
     creations: {
-        name: "Creation's",
+        name: "creations",
         id: 209830981060788225n
     },
     Leko: {
@@ -1226,7 +1238,7 @@ export const EquicordDevs = Object.freeze({
     },
     prism: {
         name: "prism",
-        id: 390884143749136386n,
+        id: 390884143749136386n
     },
     square: {
         name: "square",
@@ -1234,7 +1246,7 @@ export const EquicordDevs = Object.freeze({
     },
     neoarz: {
         name: "neoarz",
-        id: 1015372540937502851n
+        id: 218675193592283137n
     },
     KamiRu: {
         name: "KamiRu",
@@ -1248,13 +1260,13 @@ export const EquicordDevs = Object.freeze({
         name: "Benjii",
         id: 463702169443368970n
     },
-    keyages: {
+    keircn: {
         name: "Key",
         id: 1230319937155760131n
     },
     PWall: {
         name: "PWall",
-        id: 0n,
+        id: 0n
     },
     busyboxkitty: {
         name: "busyboxkitty",
@@ -1271,6 +1283,82 @@ export const EquicordDevs = Object.freeze({
     davri: {
         name: "Davri",
         id: 457579346282938368n
+    },
+    yash: {
+        name: "yash",
+        id: 889150838658977874n
+    },
+    Leon135: {
+        name: "Leon135",
+        id: 309275452231385088n
+    },
+    bbpltergiest: {
+        name: "bbpltergiest",
+        id: 279448683672502274n
+    },
+    mshl: {
+        name: "m.shl",
+        id: 1025245410224263258n
+    },
+    ScattrdBlade: {
+        name: "ScattrdBlade",
+        id: 678007540608532491n
+    },
+    Ape: {
+        name: "Ape",
+        id: 722832640360841308n
+    },
+    Kiri: {
+        name: "Kiri",
+        id: 310525496771346434n
+    },
+    pointy: {
+        name: "pointy",
+        id: 99914384989519872n
+    },
+    dka: {
+        name: "DKA",
+        id: 119386840624005121n
+    },
+    Gir0fa: {
+        name: "gir0fa",
+        id: 1282734265955520545n
+    },
+    yonn2222: {
+        name: "yonn2222",
+        id: 821835831844012103n
+    },
+    Moowi: {
+        name: "Moowi",
+        id: 246128594756173824n
+    },
+    sketchmyname: {
+        name: "sketchmyname",
+        id: 1412164910443663491n
+    },
+    NassCT: {
+        name: "NassCT",
+        id: 354996937868705793n
+    },
+    yafyx: {
+        name: "kiniyaku",
+        id: 658209494609821699n
+    },
+    dhopcs: {
+        name: "dhopcs",
+        id: 206309860038410240n
+    },
+    qdnx: {
+        name: "qdnx",
+        id: 1374803023506702508n
+    },
+    BachLe2000: {
+        name: "BachLe2000",
+        id: 624091967625625610n
+    },
+    pandaptable: {
+        name: "pandaptable",
+        id: 97153209843335168n
     },
     Davvy:
     {

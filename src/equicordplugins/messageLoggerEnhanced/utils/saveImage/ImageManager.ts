@@ -23,10 +23,11 @@ import {
     keys,
     set,
 } from "@api/DataStore";
-import { Flogger, Native } from "@equicordplugins/messageLoggerEnhanced";
-import { LoggedAttachment } from "@equicordplugins/messageLoggerEnhanced/types";
-import { DEFAULT_IMAGE_CACHE_DIR } from "@equicordplugins/messageLoggerEnhanced/utils/constants";
 import { sleep } from "@utils/misc";
+
+import { Flogger, Native } from "../..";
+import { LoggedAttachment } from "../../types";
+import { DEFAULT_IMAGE_CACHE_DIR } from "../constants";
 
 const ImageStore = createStore("MessageLoggerImageData", "MessageLoggerImageStore");
 
@@ -104,8 +105,6 @@ async function downloadAttachmentWeb(attachemnt: LoggedAttachment, attempts = 0)
     }
     const ab = await res.arrayBuffer();
     const path = `${DEFAULT_IMAGE_CACHE_DIR}/${attachemnt.id}${attachemnt.fileExtension}`;
-
-    // await writeImage(imageCacheDir, `${attachmentId}${fileExtension}`, new Uint8Array(ab));
 
     await set(path, new Uint8Array(ab), ImageStore);
     idbSavedImages.set(attachemnt.id, { attachmentId: attachemnt.id, path });

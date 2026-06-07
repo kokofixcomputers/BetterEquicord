@@ -11,11 +11,10 @@ import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
-import { openModal } from "@utils/modal";
 import definePlugin, { OptionType } from "@utils/types";
 import { Message, User } from "@vencord/discord-types";
 import { findByPropsLazy, findCssClassesLazy } from "@webpack";
-import { Button, Menu, showToast, Toasts, Tooltip, useEffect, UserStore, useState } from "@webpack/common";
+import { Button, Menu, openModal,showToast, Toasts, Tooltip, useEffect, UserStore, useState } from "@webpack/common";
 
 import { deleteTimezone, getTimezone, loadDatabaseTimezones, setUserDatabaseTimezone } from "./database";
 import { SetTimezoneModal } from "./TimezoneModal";
@@ -257,6 +256,7 @@ export default definePlugin({
     name: "Timezones",
     authors: [Devs.Aria, EquicordDevs.creations],
     description: "Shows the local time of users in profiles and message headers",
+    tags: ["Appearance", "Chat", "Utility"],
     contextMenus: {
         "user-context": userContextMenuPatch
     },
@@ -271,11 +271,11 @@ export default definePlugin({
             }
         },
         {
-            find: '"Message Username"',
+            find: "#{intl::GUILD_COMMUNICATION_DISABLED_ICON_TOOLTIP_BODY}",
             replacement: {
                 // thanks https://github.com/Syncxv/vc-timezones/pull/4
-                match: /(?<=isVisibleOnlyOnHover.+?)id:.{1,11},timestamp.{1,50}}\),/,
-                replace: "$&,$self.renderMessageTimezone(arguments[0]),"
+                match: /(?<=isVisibleOnlyOnHover.+?)id:.{0,15},timestamp.{1,50}}\),/,
+                replace: "$&$self.renderMessageTimezone(arguments[0]),"
             }
         }
     ],

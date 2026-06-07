@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ChannelStore } from "@webpack/common";
+import { ChannelStore, Toasts } from "@webpack/common";
 import { DBSchema, IDBPDatabase, openDB } from "idb";
 
 import { LoggedMessageJSON } from "./types";
 import { getMessageStatus } from "./utils";
+import { stripTransientRenderState } from "./utils/cleanUp";
 import { DB_NAME, DB_VERSION } from "./utils/constants";
 import { getAttachmentBlobUrl } from "./utils/saveImage";
 
@@ -61,11 +62,13 @@ async function cacheRecords(records: DBMessageRecord[]) {
 async function cacheRecord(record?: DBMessageRecord | null) {
     if (!record) return record;
 
+    stripTransientRenderState(record.message);
     cachedMessages.set(record.message_id, record.message);
     return record;
 }
 
 export async function initIDB() {
+    if (db) return;
     db = await openDB<MLIDB>(DB_NAME, DB_VERSION, {
         upgrade(db) {
             const messageStore = db.createObjectStore("messages", { keyPath: "message_id" });
@@ -108,6 +111,30 @@ export async function getMessagesByStatusIDB(status: DBMessageStatus) {
 
 export async function getOldestMessagesIDB(limit: number) {
     return cacheRecords(await db.getAllFromIndex("messages", "by_timestamp", undefined, limit));
+}
+
+export async function* iterateAllMessagesIDB(batchSize = 100) {
+    let lastId: string | undefined;
+    while (true) {
+        const batch: DBMessageRecord[] = [];
+        // new transaction for each batch to avoid timeouts during yield
+        const tx = db.transaction("messages");
+        const range = lastId ? IDBKeyRange.lowerBound(lastId, true) : undefined;
+        let cursor = await tx.store.openCursor(range);
+
+        while (cursor && batch.length < batchSize) {
+            batch.push(cursor.value);
+            cursor = await cursor.continue();
+        }
+
+        if (batch.length === 0) break;
+
+        lastId = batch[batch.length - 1].message_id;
+
+        yield await cacheRecords(batch);
+
+        if (batch.length < batchSize) break;
+    }
 }
 
 export async function getOlderThanTimestampIDB(timestamp: string) {
@@ -183,6 +210,9 @@ export async function getMessagesByChannelAndAfterTimestampIDB(channel_id: strin
 }
 
 export async function addMessageIDB(message: LoggedMessageJSON, status: DBMessageStatus) {
+    stripTransientRenderState(message);
+
+    if (!db) await initIDB();
     await db.put("messages", {
         channel_id: message.channel_id,
         message_id: message.id,
@@ -194,6 +224,8 @@ export async function addMessageIDB(message: LoggedMessageJSON, status: DBMessag
 }
 
 export async function addMessagesBulkIDB(messages: LoggedMessageJSON[], status?: DBMessageStatus) {
+    messages.forEach(stripTransientRenderState);
+
     const tx = db.transaction("messages", "readwrite");
     const { store } = tx;
 
@@ -224,7 +256,14 @@ export async function deleteMessagesBulkIDB(message_ids: string[]) {
     message_ids.forEach(id => cachedMessages.delete(id));
 }
 
-export async function clearMessagesIDB() {
-    await db.clear("messages");
+export async function clearMessagesIDB(showToast = true) {
     cachedMessages.clear();
+    await db.clear("messages");
+    if (!showToast) return;
+
+    Toasts.show({
+        type: Toasts.Type.MESSAGE,
+        message: "Cleared message log database and cache.",
+        id: Toasts.genId()
+    });
 }

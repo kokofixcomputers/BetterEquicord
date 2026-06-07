@@ -318,27 +318,26 @@ export default definePlugin({
     name: "KeywordNotify",
     authors: [EquicordDevs.camila314, EquicordDevs.x3rt],
     description: "Sends a notification if a given message matches certain keywords or regexes",
+    tags: ["Chat", "Notifications"],
     settings,
     patches: [
         {
             find: "#{intl::UNREADS_TAB_LABEL})}",
+            group: true,
             replacement: [
                 {
-                    match: /,(\i\?\(0,\i\.jsxs?\)\(\i\.\i\i\.Item)/,
-                    replace: ",$self.keywordTabBar()$&"
+                    match: /#{intl::Fn6Odn::raw}\)\}\):null/,
+                    replace: "$&,$self.keywordTabBar()"
                 },
                 {
-                    match: /:(\i)===\i\.\i\.MENTIONS\?/,
+                    match: /:(\i)===\i\.\i\.MENTIONS\?\(0,.{0,500}null}/,
                     replace: ": $1 === 8 ? $self.keywordClearButton() $&"
+                },
+                {
+                    match: /:(\i)===\i\.\i\.MENTIONS\?\(0,.{0,500}onJump:(\i)}\)/,
+                    replace: ": $1 === 8 ? $self.tryKeywordMenu($2) $&"
                 }
             ]
-        },
-        {
-            find: ".MENTIONS)});",
-            replacement: {
-                match: /:(\i)===\i\.\i\.MENTIONS\?\(0,.+?onJump:(\i)}\)/,
-                replace: ": $1 === 8 ? $self.tryKeywordMenu($2) $&"
-            }
         },
         {
             find: ".guildFilter:null",
@@ -371,14 +370,14 @@ export default definePlugin({
             return this.modify(e);
         };
 
-        FluxDispatcher.subscribe("MESSAGE_CREATE", interceptor);
-        FluxDispatcher.subscribe("MESSAGE_UPDATE", interceptor);
-        FluxDispatcher.subscribe("LOAD_MESSAGES_SUCCESS", interceptor);
+        FluxDispatcher.addInterceptor(interceptor);
     },
+
     stop() {
-        FluxDispatcher.unsubscribe("MESSAGE_CREATE", interceptor);
-        FluxDispatcher.unsubscribe("MESSAGE_UPDATE", interceptor);
-        FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", interceptor);
+        const index = FluxDispatcher._interceptors.indexOf(interceptor);
+        if (index > -1) {
+            FluxDispatcher._interceptors.splice(index, 1);
+        }
     },
 
     applyKeywordEntries(m: Message) {
@@ -475,6 +474,7 @@ export default definePlugin({
         try {
             messageRecord = createMessageRecord(m);
         } catch (err) {
+            console.error(err);
             return;
         }
 

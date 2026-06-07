@@ -16,6 +16,25 @@ Included plugins from the original Equicord project can be found [here](https://
 
 ## Installing / Uninstalling
 
+Windows
+
+- [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl.exe)
+- [CLI](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli.exe)
+
+MacOS
+
+- [X64 GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-darwin-x64.zip)
+- [ARM64 GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-darwin-arm64.zip)
+
+Linux
+
+- [GUI](https://github.com/Equicord/Equilotl/releases/latest/download/Equilotl-x11)
+- [CLI](https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-Linux)
+- [AUR](https://aur.archlinux.org/packages?O=0&K=equicord)
+
+```shell
+sh -c "$(curl -sS https://raw.githubusercontent.com/Equicord/Equicord/refs/heads/main/misc/install.sh)"
+```
 Currently, pre-built builds are not available. Follow the below instructions in `Installing Equicord Devbuild` to build.
 
 ## Installing Equicord Devbuild

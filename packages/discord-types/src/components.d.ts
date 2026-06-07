@@ -192,6 +192,7 @@ export type TextInput = ComponentType<PropsWithChildren<{
 export type TextArea = ComponentType<Omit<HTMLProps<HTMLTextAreaElement>, "onChange"> & {
     onChange(v: string): void;
     inputRef?: Ref<HTMLTextAreaElement>;
+    autosize?: boolean;
 }>;
 
 export interface SelectOption {
@@ -244,7 +245,7 @@ export type Select = ComponentType<PropsWithChildren<{
 export type SearchableSelect = ComponentType<PropsWithChildren<{
     placeholder?: string;
     options: ReadonlyArray<SelectOption>; // TODO
-    value?: SelectOption | string[];
+    value?: any;
 
     /**
      * - 0 ~ Filled
@@ -331,6 +332,15 @@ declare enum PopoutAnimation {
 
 type PopoutPosition = "top" | "bottom" | "left" | "right" | "center" | "window_center";
 
+export interface PopoutProps {
+    position: PopoutPosition;
+    nudge: number;
+    isPositioned: boolean;
+    setPopoutRef(ref: any): void;
+    closePopout(): void;
+    updatePosition(): void;
+}
+
 export type Popout = ComponentType<{
     children(
         thing: {
@@ -347,14 +357,8 @@ export type Popout = ComponentType<{
     ): ReactNode;
     shouldShow?: boolean;
     targetElementRef: RefObject<any>;
-    renderPopout(args: {
-        closePopout(): void;
-        isPositioned: boolean;
-        nudge: number;
-        position: PopoutPosition;
-        setPopoutRef(ref: any): void;
-        updatePosition(): void;
-    }): ReactNode;
+    renderPopout(props: PopoutProps): ReactNode;
+    preload?(): Promise<any>;
 
     onRequestOpen?(): void;
     onRequestClose?(): void;
@@ -411,6 +415,24 @@ export type MaskedLink = ComponentType<PropsWithChildren<{
     channelId?: string;
 }>>;
 
+interface ScrollToOptions {
+    animate?: boolean;
+    callback?: (() => unknown);
+}
+
+/** Full type can be found at {@link https://github.com/fedeericodl/discord-client-types/blob/main/src/discord_common/js/packages/design/components/Scroller/utils/core/getAnimatedScrollHelpers.ts} */
+export interface ScrollerBaseRef {
+    scrollTo: (props: { to: number; } & ScrollToOptions) => void;
+    scrollPageUp: (props?: ScrollToOptions) => void;
+    scrollPageDown: (props?: ScrollToOptions) => void;
+    scrollToTop: (props?: ScrollToOptions) => void;
+    scrollToBottom: (props?: ScrollToOptions) => void;
+    isScrolledToTop: () => boolean;
+    isScrolledToBottom: () => boolean;
+    getDistanceFromTop: () => number;
+    getDistanceFromBottom: () => number;
+}
+
 export interface ScrollerBaseProps {
     className?: string;
     style?: CSSProperties;
@@ -418,6 +440,7 @@ export interface ScrollerBaseProps {
     paddingFix?: boolean;
     onClose?(): void;
     onScroll?(): void;
+    ref?: Ref<ScrollerBaseRef>;
 }
 
 export type ScrollerThin = ComponentType<PropsWithChildren<ScrollerBaseProps & {
@@ -448,9 +471,9 @@ export type ListScrollerThin = ComponentType<ScrollerBaseProps & {
     renderSidebar?: (listVisible: boolean, sidebarVisible: boolean) => React.ReactNode;
     wrapSection?: (section: number, children: React.ReactNode) => React.ReactNode;
 
-    sectionHeight: number;
-    rowHeight: number;
-    footerHeight?: number;
+    sectionHeight: number | ((section: number) => number);
+    rowHeight: number | ((section: number, row: number) => number);
+    footerHeight?: number | ((section: number) => number);
     sidebarHeight?: number;
 
     chunkSize?: number;
@@ -517,4 +540,5 @@ export type ColorPicker = ComponentType<{
     suggestedColors?: string[];
     label?: ReactNode;
     onChange(value: number | null): void;
+    disabled?: boolean;
 }>;

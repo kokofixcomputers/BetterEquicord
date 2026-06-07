@@ -55,6 +55,7 @@ window.VencordNative = {
 
     native: {
         getVersions: () => ({}),
+        supportsWindowsMaterial: () => false,
         openExternal: async (url) => void open(url, "_blank"),
         getRendererCss: async () => {
             if (IS_USERSCRIPT)
@@ -135,4 +136,9 @@ window.VencordNative = {
 
     pluginHelpers: {} as any,
     csp: {} as any,
+    tray: {
+        setUpdateState: NOOP,
+        onCheckUpdates: NOOP,
+        onRepair: NOOP,
+    },
 };
