@@ -6,6 +6,8 @@
 
 import "./styles.css";
 
+export { default as BetterDiscordTab } from "./betterdiscord";
+export { default as PluginInjectorTab } from "./plugininjector";
 export { default as ThemesTab } from "../../ThemeSettings/ThemesTab";
 export * from "./BaseTab";
 export { default as ChangelogTab } from "./changelog";

@@ -107,6 +107,24 @@ export interface Settings {
             [varName: string]: string;
         };
     };
+
+    injectedPlugins?: InjectedPlugin[];
+
+    bdCompat?: {
+        enableExperimentalRequestPolyfills?: boolean;
+        corsProxyUrl?: string;
+        useIndexedDBInstead?: boolean;
+        useRealFsInstead?: boolean;
+        usePoorlyMadeRealFs?: boolean;
+        safeMode?: boolean;
+    };
+}
+
+interface InjectedPlugin {
+    name: string;
+    url: string;
+    enabled: boolean;
+    loaded: boolean;
 }
 
 const DefaultSettings: Settings = {
@@ -154,7 +172,18 @@ const DefaultSettings: Settings = {
 
     ignoreResetWarning: false,
 
-    userCssVars: {}
+    userCssVars: {},
+
+    injectedPlugins: [],
+
+    bdCompat: {
+        enableExperimentalRequestPolyfills: false,
+        corsProxyUrl: "https://cors-get-proxy.sirjosh.workers.dev/?url=",
+        useIndexedDBInstead: false,
+        useRealFsInstead: false,
+        usePoorlyMadeRealFs: false,
+        safeMode: false,
+    }
 };
 
 const settings = !IS_REPORTER ? VencordNative.settings.get() : {} as Settings;
